@@ -235,23 +235,82 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
       {/* CARDS */}
       <View style={styles.rowWrap}>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t("Temperature", language)}</Text>
-          <Text style={styles.cardValue}>{temp} °C</Text>
+        <View style={[styles.card, { width: '32%', padding: 10, alignItems: 'center' }]}>
+          <Text style={[styles.cardTitle, { fontSize: 12, textAlign: 'center' }]} numberOfLines={1} adjustsFontSizeToFit>{t("Temperature", language)}</Text>
+          <Text style={[styles.cardValue, { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit>{temp}°C</Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t("Moisture", language)}</Text>
-          <Text style={styles.cardValue}>100 %</Text>
+        <View style={[styles.card, { width: '32%', padding: 10, alignItems: 'center' }]}>
+          <Text style={[styles.cardTitle, { fontSize: 12, textAlign: 'center' }]} numberOfLines={1} adjustsFontSizeToFit>{t("Moisture", language)}</Text>
+          <Text style={[styles.cardValue, { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit>100%</Text>
         </View>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t("Humidity (%)", language).replace(" (%)", "")}</Text>
-          <Text style={styles.cardValue}>{humidity} %</Text>
+        <View style={[styles.card, { width: '32%', padding: 10, alignItems: 'center' }]}>
+          <Text style={[styles.cardTitle, { fontSize: 12, textAlign: 'center' }]} numberOfLines={1} adjustsFontSizeToFit>{t("Humidity (%)", language).replace(" (%)", "")}</Text>
+          <Text style={[styles.cardValue, { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit>{humidity}%</Text>
         </View>
 
       </View>
 
+
+      {/* PH CALCULATOR */}
+      <Text style={styles.section}>{t("pH Level Analyzer", language)}</Text>
+
+      <View style={styles.box}>
+        <Text style={{fontSize: 13, color: '#666', marginBottom: 15}}>{t("Enter up to 3 soil pH readings from your strips to find the average.", language)}</Text>
+        
+        {/* Beautiful pH Color Scale Array (Always Visible) */}
+        <View style={{marginBottom: 20}}>
+          <Text style={{fontSize: 12, fontWeight: '700', color: '#888', marginBottom: 6, alignSelf: 'center'}}>{t("REFERENCE pH COLOR SCALE", language)}</Text>
+          <View style={styles.phChartRow}>
+            {phColors.map((color, idx) => {
+              const currentPhNum = idx + 1;
+              const isMatch = avgPh && Math.round(parseFloat(avgPh)) === currentPhNum;
+              return (
+                 <View key={idx} style={[
+                    styles.phChartBlock, 
+                    { backgroundColor: color },
+                    isMatch && styles.phChartBlockActive
+                 ]}>
+                   <Text style={[styles.phChartText, isMatch && styles.phChartTextActive]}>{currentPhNum}</Text>
+                 </View>
+              );
+            })}
+          </View>
+        </View>
+
+        <View style={styles.inputRow}>
+          {[0, 1, 2].map((i) => (
+            <View key={i} style={styles.thirdInput}>
+              <Text style={styles.label}>{t(`Read ${i + 1}`, language)}</Text>
+              <TextInput 
+                style={styles.input} 
+                placeholder="0.0" 
+                keyboardType="numeric" 
+                value={phReadings[i]} 
+                onChangeText={(val) => {
+                  const r = [...phReadings];
+                  r[i] = val;
+                  setPhReadings(r);
+                }} 
+              />
+            </View>
+          ))}
+        </View>
+
+        <TouchableOpacity style={styles.darkButton} onPress={calculateAveragePh}>
+          <Text style={styles.buttonText}>{t("Calculate Average", language)}</Text>
+        </TouchableOpacity>
+
+        {avgPh && (
+          <View style={[styles.resultContainer, {marginTop: 20}]}>
+            <Text style={styles.resultTitle}>{t("Average Soil pH: ", language)}<Text style={{fontSize: 22, color: '#1B5E20', fontWeight: 'bold'}}>{avgPh}</Text></Text>
+            <Text style={{fontSize: 13, color: '#666', marginTop: 5}}>
+              {parseFloat(avgPh) < 6 ? t('Highly Acidic! Needs lime.', language) : parseFloat(avgPh) > 7.5 ? t('Highly Alkaline! Needs sulfur or peat.', language) : t('Optimal Neutral Range for most crops.', language)} 
+            </Text>
+          </View>
+        )}
+      </View>
 
       {/* NPK */}
       <Text style={styles.section}>{t("Predict NPK", language)}</Text>
@@ -309,65 +368,6 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
             ) : (
               <Text style={styles.resultData}>{typeof globalNpk === 'string' ? globalNpk : JSON.stringify(globalNpk)}</Text>
             )}
-          </View>
-        )}
-      </View>
-
-      {/* PH CALCULATOR */}
-      <Text style={styles.section}>{t("pH Level Analyzer", language)}</Text>
-
-      <View style={styles.box}>
-        <Text style={{fontSize: 13, color: '#666', marginBottom: 15}}>{t("Enter up to 3 soil pH readings from your strips to find the average.", language)}</Text>
-        
-        {/* Beautiful pH Color Scale Array (Always Visible) */}
-        <View style={{marginBottom: 20}}>
-          <Text style={{fontSize: 12, fontWeight: '700', color: '#888', marginBottom: 6, alignSelf: 'center'}}>{t("REFERENCE pH COLOR SCALE", language)}</Text>
-          <View style={styles.phChartRow}>
-            {phColors.map((color, idx) => {
-              const currentPhNum = idx + 1;
-              const isMatch = avgPh && Math.round(parseFloat(avgPh)) === currentPhNum;
-              return (
-                 <View key={idx} style={[
-                    styles.phChartBlock, 
-                    { backgroundColor: color },
-                    isMatch && styles.phChartBlockActive
-                 ]}>
-                   <Text style={[styles.phChartText, isMatch && styles.phChartTextActive]}>{currentPhNum}</Text>
-                 </View>
-              );
-            })}
-          </View>
-        </View>
-
-        <View style={styles.inputRow}>
-          {[0, 1, 2].map((i) => (
-            <View key={i} style={styles.thirdInput}>
-              <Text style={styles.label}>{t(`Read ${i + 1}`, language)}</Text>
-              <TextInput 
-                style={styles.input} 
-                placeholder="0.0" 
-                keyboardType="numeric" 
-                value={phReadings[i]} 
-                onChangeText={(val) => {
-                  const r = [...phReadings];
-                  r[i] = val;
-                  setPhReadings(r);
-                }} 
-              />
-            </View>
-          ))}
-        </View>
-
-        <TouchableOpacity style={styles.darkButton} onPress={calculateAveragePh}>
-          <Text style={styles.buttonText}>{t("Calculate Average", language)}</Text>
-        </TouchableOpacity>
-
-        {avgPh && (
-          <View style={[styles.resultContainer, {marginTop: 20}]}>
-            <Text style={styles.resultTitle}>{t("Average Soil pH: ", language)}<Text style={{fontSize: 22, color: '#1B5E20', fontWeight: 'bold'}}>{avgPh}</Text></Text>
-            <Text style={{fontSize: 13, color: '#666', marginTop: 5}}>
-              {parseFloat(avgPh) < 6 ? t('Highly Acidic! Needs lime.', language) : parseFloat(avgPh) > 7.5 ? t('Highly Alkaline! Needs sulfur or peat.', language) : t('Optimal Neutral Range for most crops.', language)} 
-            </Text>
           </View>
         )}
       </View>

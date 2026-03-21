@@ -141,14 +141,17 @@ export default function YieldPrediction({ openMenu, language, homeInputs }) {
             
             {result.yield_per_acre_tonnes !== undefined ? (
               <View style={styles.resultDataBox}>
-                <Text style={styles.resultText}>{t("Yield per Acre: ", language)}<Text style={styles.resultValue}>{result.yield_per_acre_tonnes} Tonnes</Text></Text>
-                <Text style={styles.resultText}>{t("Yield per Hectare: ", language)}<Text style={styles.resultValue}>{result.yield_per_hectare_tonnes} Tonnes</Text></Text>
-                <Text style={styles.resultText}>{t("Total Yield: ", language)}<Text style={styles.resultValue}>{result.total_yield_tonnes} Tonnes</Text></Text>
+                <Text style={styles.resultText}>{t("Yield per Acre: ", language)}<Text style={styles.resultValue}>{result.yield_per_acre_tonnes} {t('Tonnes', language)} ({(parseFloat(result.yield_per_acre_tonnes) * 1000).toLocaleString('en-IN')} kg)</Text></Text>
+                <Text style={styles.resultText}>{t("Yield per Hectare: ", language)}<Text style={styles.resultValue}>{result.yield_per_hectare_tonnes} {t('Tonnes', language)} ({(parseFloat(result.yield_per_hectare_tonnes) * 1000).toLocaleString('en-IN')} kg)</Text></Text>
+                <Text style={styles.resultText}>{t("Total Yield: ", language)}<Text style={styles.resultValue}>{result.total_yield_tonnes} {t('Tonnes', language)} ({(parseFloat(result.total_yield_tonnes) * 1000).toLocaleString('en-IN')} kg)</Text></Text>
               </View>
             ) : typeof result === 'string' || typeof result === 'number' ? (
-              <Text style={styles.resultHighlight}>{result}</Text>
+              <View>
+                 <Text style={styles.resultHighlight}>{result} {t('Tonnes', language)}</Text>
+                 <Text style={[styles.resultHighlight, {fontSize: 26, color: '#DCE775', marginTop: -10}]}>({(parseFloat(result) * 1000).toLocaleString('en-IN')} kg)</Text>
+              </View>
             ) : (
-              <Text style={styles.resultText}>Could not parse prediction.</Text>
+              <Text style={styles.resultText}>{t("Could not parse prediction.", language)}</Text>
             )}
             
             <Text style={[styles.resultSubtext, {marginTop: 10}]}>{t("Based on the provided parameters, this is the expected yield.", language)}</Text>
