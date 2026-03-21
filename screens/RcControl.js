@@ -69,11 +69,12 @@ export default function RcControl({ openMenu, language }) {
 
         const wakeUpCamera = async () => {
             try {
-                // Hits common ESP32-CAM start stream commands on port 80 to wake up port 81
-                await axios.get(`${CONTROL_URL}/control?var=framesize&val=6`); // VGA
-                console.log("Sent Start Stream command to camera.");
+                // Optimizes camera for speed: CIF resolution (val=5) and good compression (quality=12)
+                await axios.get(`${CONTROL_URL}/control?var=framesize&val=5`); 
+                await axios.get(`${CONTROL_URL}/control?var=quality&val=12`);
+                console.log("Optimized camera for low-lag streaming.");
             } catch (e) {
-                console.log("Could not wake up camera (likely port 80 unreachable):", e);
+                console.log("Could not optimize camera:", e);
             }
         };
 
