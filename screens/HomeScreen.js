@@ -14,7 +14,7 @@ import * as Location from 'expo-location';
 import { t } from '../utils/translations';
 
 // 👉 Replace with your ESP IP
-const API = "http://10.157.70.174/temp";
+const API = "http://10.157.70.125/temp";
 
 export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInputs, setHomeInputs, language, setLanguage }) {
 

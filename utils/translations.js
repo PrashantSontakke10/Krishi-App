@@ -329,7 +329,29 @@ export const translations = {
   "Reply:": { hi: "जवाब:", mr: "उत्तर:" },
   "None": { hi: "कोई नहीं", mr: "काहीही नाही" },
   "Waiting": { hi: "प्रतीक्षा कर रहा है", mr: "वाट पाहत आहे" },
-  "STOP": { hi: "रोकें (STOP)", mr: "थांबा (STOP)" }
+  "STOP": { hi: "रोकें (STOP)", mr: "थांबा (STOP)" },
+
+  // Weather Screen Additions
+  "⛅ Smart Weather": { hi: "⛅ स्मार्ट मौसम", mr: "⛅ स्मार्ट हवामान" },
+  "Please grant location access to fetch smart weather.": { hi: "कृपया मौसम प्राप्त करने के लिए स्थान तक पहुँच प्रदान करें।", mr: "कृपया स्मार्ट हवामान मिळवण्यासाठी स्थान परवानगी द्या." },
+  "Could not fetch weather data.": { hi: "मौसम का डेटा प्राप्त नहीं हो सका।", mr: "हवामानाचा डेटा मिळवू शकलो नाही." },
+  "Could not load weather data.": { hi: "मौसम का डेटा लोड नहीं हो सका।", mr: "हवामानाचा डेटा लोड करू शकलो नाही." },
+  "Heavy rain expected on": { hi: "भारी बारिश की उम्मीद:", mr: "जोरदार पावसाची शक्यता:" },
+  "Drought Warning: High temperatures with little to no rain in the next 7 days.": { hi: "सूखा चेतावनी: 7 दिनों में कम बारिश के साथ उच्च तापमान।", mr: "दुष्काळ चेतावणी: 7 दिवसांत नगण्य पावसासह उच्च तापमान." },
+  "Sun": { hi: "रवि", mr: "रवि" },
+  "Mon": { hi: "सोम", mr: "सोम" },
+  "Tue": { hi: "मंगल", mr: "मंगळ" },
+  "Wed": { hi: "बुध", mr: "बुध" },
+  "Thu": { hi: "गुरु", mr: "गुरु" },
+  "Fri": { hi: "शुक्र", mr: "शुक्र" },
+  "Sat": { hi: "शनि", mr: "शनि" },
+  "7-Day Agricultural Forecast & Alerts": { hi: "7-दिवसीय कृषि पूर्वानुमान और अलर्ट", mr: "7-दिवसीय कृषी अंदाज आणि अलर्ट" },
+  "Rain Alert": { hi: "बारिश का अलर्ट", mr: "पावसाचा अलर्ट" },
+  "Drought Alert": { hi: "सूखे का अलर्ट", mr: "दुष्काळाचा अलर्ट" },
+  "All Clear": { hi: "सब ठीक है", mr: "सर्व सुरक्षित" },
+  "No severe weather warnings for the upcoming week.": { hi: "आगामी सप्ताह के लिए कोई गंभीर मौसम चेतावनी नहीं।", mr: "आगामी आठवड्यासाठी कोणतेही गंभीर हवामान इशारे नाहीत." },
+  "7-Day Forecast": { hi: "7-दिन का पूर्वानुमान", mr: "7-दिवसांचा अंदाज" },
+  "Rainfall Trend": { hi: "वर्षा की प्रवृत्ति", mr: "पावसाचा कल" }
 };
 
 export const t = (text, lang) => {

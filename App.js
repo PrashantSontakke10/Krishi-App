@@ -8,6 +8,7 @@ import DiseaseDetection from './screens/DiseaseDetection';
 import YieldPrediction from './screens/YieldPrediction';
 import MarketPrice from './screens/MarketPrice';
 import RcControl from './screens/RcControl';
+import WeatherScreen from './screens/WeatherScreen';
 
 export default function App() {
 
@@ -51,6 +52,7 @@ export default function App() {
       case "yield": return <YieldPrediction openMenu={() => setMenuOpen(true)} homeInputs={homeInputs} language={language} />;
       case "market": return <MarketPrice openMenu={() => setMenuOpen(true)} homeInputs={homeInputs} language={language} />;
       case "rcControl": return <RcControl openMenu={() => setMenuOpen(true)} homeInputs={homeInputs} language={language} />;
+      case "weather": return <WeatherScreen openMenu={() => setMenuOpen(true)} language={language} />;
       default:
         return <HomeScreen openMenu={() => setMenuOpen(true)} globalNpk={globalNpk} setGlobalNpk={setGlobalNpk} homeInputs={homeInputs} setHomeInputs={setHomeInputs} language={language} setLanguage={setLanguage} />;
     }

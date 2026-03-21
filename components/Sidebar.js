@@ -38,6 +38,10 @@ export default function Sidebar({ onClose, navigate, language }) {
           <Text style={styles.item}>{t("💰 Market Price", language)}</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity onPress={() => navigate("weather")}>
+          <Text style={styles.item}>{t("⛅ Smart Weather", language)}</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity onPress={onClose}>
           <Text style={styles.close}>{t("Close", language)}</Text>
         </TouchableOpacity>
