@@ -1,10 +1,11 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 
 export default function Sidebar({ onClose, navigate }) {
+
   return (
     <View style={styles.overlay}>
-      <View style={styles.menu}>
+      <ScrollView style={styles.menu} contentContainerStyle={styles.menuContent}>
 
         <Text style={styles.title}>🌱 KrishiSetu</Text>
 
@@ -32,11 +33,15 @@ export default function Sidebar({ onClose, navigate }) {
           <Text style={styles.item}>💰 Market Price</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity onPress={() => navigate("rcControl")}>
+          <Text style={styles.item}>🏎️ RC Remote</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity onPress={onClose}>
           <Text style={styles.close}>Close</Text>
         </TouchableOpacity>
 
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -55,8 +60,11 @@ const styles = StyleSheet.create({
     width: 260,
     height: '100%',
     backgroundColor: '#fff',
+  },
+
+  menuContent: {
     padding: 20,
-    
+    paddingBottom: 40,
   },
 
   title: {
@@ -72,8 +80,10 @@ const styles = StyleSheet.create({
   },
 
   close: {
-    marginTop: 30,
-    color: 'red'
+    marginVertical: 20,
+    color: 'red',
+    fontSize: 16,
+    fontWeight: 'bold'
   }
 
 });
