@@ -1,7 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
 import Paho from 'paho-mqtt';
+import { WebView } from 'react-native-webview';
 import { t } from '../utils/translations';
+
+const STREAM_URL = 'http://10.13.19.84:81/stream';
 
 const MQTT_BROKER = '10.13.19.102'; // Hive MQ IP
 const MQTT_PORT = 8000; // MUST BE WEBSOCKET PORT (For HiveMQ it usually defaults to 8000)
@@ -11,6 +14,8 @@ export default function RcControl({ openMenu, language }) {
     const [connected, setConnected] = useState(false);
     const [lastCmdText, setLastCmdText] = useState('None');
     const [replyText, setReplyText] = useState('Waiting');
+    const [streamError, setStreamError] = useState(false);
+    const [streamKey, setStreamKey] = useState(0);
 
     // Custom states for actions
     const [relayState, setRelayState] = useState(false); // false = OFF, true = ON
@@ -124,8 +129,37 @@ export default function RcControl({ openMenu, language }) {
 
                 {/* Video Feed Card */}
                 <View style={styles.formCard}>
+                    <Text style={styles.sectionTitle}>{t('Camera', language)}</Text>
                     <View style={styles.videoSection}>
-                        <Text style={styles.videoText}>{t("Camera Feed Unavailable", language)}</Text>
+                        {streamError ? (
+                            <View style={styles.streamErrorBox}>
+                                <Text style={styles.videoText}>{t('Camera Feed Unavailable', language)}</Text>
+                                <TouchableOpacity
+                                    style={styles.retryBtn}
+                                    onPress={() => { setStreamError(false); setStreamKey(k => k + 1); }}
+                                >
+                                    <Text style={styles.retryBtnText}>🔄 {t('Retry', language) || 'Retry'}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        ) : (
+                            <WebView
+                                key={streamKey}
+                                source={{ uri: STREAM_URL }}
+                                style={styles.webview}
+                                onError={() => setStreamError(true)}
+                                onHttpError={() => setStreamError(true)}
+                                startInLoadingState={true}
+                                renderLoading={() => (
+                                    <View style={styles.streamLoadingBox}>
+                                        <ActivityIndicator size="large" color="#4CAF50" />
+                                        <Text style={{ color: '#fff', marginTop: 10, fontSize: 13 }}>Connecting to camera...</Text>
+                                    </View>
+                                )}
+                                scrollEnabled={false}
+                                allowsInlineMediaPlayback={true}
+                                mediaPlaybackRequiresUserAction={false}
+                            />
+                        )}
                     </View>
                 </View>
 
@@ -223,8 +257,13 @@ const styles = StyleSheet.create({
     brokerText: { fontSize: 12, color: '#888', marginTop: 2 },
     formCard: { backgroundColor: '#fff', borderRadius: 24, padding: 25, shadowColor: '#000', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.05, shadowRadius: 15, elevation: 5 },
     sectionTitle: { fontSize: 16, fontWeight: '700', color: '#888', marginBottom: 15, textTransform: 'uppercase', letterSpacing: 0.5 },
-    videoSection: { height: 180, backgroundColor: '#1B1B1B', justifyContent: 'center', alignItems: 'center', borderRadius: 16 },
+    videoSection: { height: 220, backgroundColor: '#1B1B1B', justifyContent: 'center', alignItems: 'center', borderRadius: 16, overflow: 'hidden' },
     videoText: { color: '#fff', fontSize: 14, fontWeight: '600', opacity: 0.8 },
+    webview: { width: '100%', height: '100%', backgroundColor: '#1B1B1B' },
+    streamLoadingBox: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#1B1B1B', justifyContent: 'center', alignItems: 'center' },
+    streamErrorBox: { flex: 1, justifyContent: 'center', alignItems: 'center', gap: 14 },
+    retryBtn: { backgroundColor: '#2E7D32', paddingVertical: 10, paddingHorizontal: 24, borderRadius: 12 },
+    retryBtnText: { color: '#fff', fontWeight: '700', fontSize: 14 },
     actionButtons: { flexDirection: 'column', gap: 12 },
     actionButton: { backgroundColor: '#2E7D32', paddingVertical: 14, borderRadius: 16, alignItems: 'center', shadowColor: '#2E7D32', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.3, shadowRadius: 8, elevation: 5, marginBottom: 12 },
     actionButtonText: { color: '#fff', fontSize: 15, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1 },
