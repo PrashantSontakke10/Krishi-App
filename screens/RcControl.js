@@ -162,6 +162,8 @@ export default function RcControl({ openMenu, language }) {
                                     javaScriptEnabled={true}
                                     domStorageEnabled={true}
                                     mixedContentMode="always"
+                                    userAgent="Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Mobile Safari/537.36"
+                                    incognito={true}
                                 />
                         )}
                     </View>
