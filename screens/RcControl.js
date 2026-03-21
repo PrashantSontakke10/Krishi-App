@@ -142,23 +142,27 @@ export default function RcControl({ openMenu, language }) {
                                 </TouchableOpacity>
                             </View>
                         ) : (
-                            <WebView
-                                key={streamKey}
-                                source={{ uri: STREAM_URL }}
-                                style={styles.webview}
-                                onError={() => setStreamError(true)}
-                                onHttpError={() => setStreamError(true)}
-                                startInLoadingState={true}
-                                renderLoading={() => (
-                                    <View style={styles.streamLoadingBox}>
-                                        <ActivityIndicator size="large" color="#4CAF50" />
-                                        <Text style={{ color: '#fff', marginTop: 10, fontSize: 13 }}>Connecting to camera...</Text>
-                                    </View>
-                                )}
-                                scrollEnabled={false}
-                                allowsInlineMediaPlayback={true}
-                                mediaPlaybackRequiresUserAction={false}
-                            />
+                                <WebView
+                                    key={streamKey}
+                                    source={{ uri: STREAM_URL }}
+                                    style={styles.webview}
+                                    onError={() => setStreamError(true)}
+                                    onHttpError={() => setStreamError(true)}
+                                    startInLoadingState={true}
+                                    renderLoading={() => (
+                                        <View style={styles.streamLoadingBox}>
+                                            <ActivityIndicator size="large" color="#4CAF50" />
+                                            <Text style={{ color: '#fff', marginTop: 10, fontSize: 13 }}>Connecting to camera...</Text>
+                                        </View>
+                                    )}
+                                    scrollEnabled={false}
+                                    allowsInlineMediaPlayback={true}
+                                    mediaPlaybackRequiresUserAction={false}
+                                    originWhitelist={['*']}
+                                    javaScriptEnabled={true}
+                                    domStorageEnabled={true}
+                                    mixedContentMode="always"
+                                />
                         )}
                     </View>
                 </View>
