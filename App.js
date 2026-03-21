@@ -13,6 +13,14 @@ export default function App() {
 
   const [screen, setScreen] = useState("home");
   const [menuOpen, setMenuOpen] = useState(false);
+  const [globalNpk, setGlobalNpk] = useState(null);
+  const [homeInputs, setHomeInputs] = useState({
+    temperature: '',
+    humidity: '100',
+    ph: '6.5',
+    rainfall: '200'
+  });
+  const [language, setLanguage] = useState("en");
 
   useEffect(() => {
     const backAction = () => {
@@ -37,14 +45,14 @@ export default function App() {
 
   const renderScreen = () => {
     switch (screen) {
-      case "crop": return <CropRecommendation openMenu={() => setMenuOpen(true)} />;
-      case "fertilizer": return <FertilizerRecommendation openMenu={() => setMenuOpen(true)} />;
-      case "disease": return <DiseaseDetection openMenu={() => setMenuOpen(true)} />;
-      case "yield": return <YieldPrediction openMenu={() => setMenuOpen(true)} />;
-      case "market": return <MarketPrice openMenu={() => setMenuOpen(true)} />;
-      case "rcControl": return <RcControl openMenu={() => setMenuOpen(true)} />;
+      case "crop": return <CropRecommendation openMenu={() => setMenuOpen(true)} globalNpk={globalNpk} language={language} />;
+      case "fertilizer": return <FertilizerRecommendation openMenu={() => setMenuOpen(true)} globalNpk={globalNpk} language={language} />;
+      case "disease": return <DiseaseDetection openMenu={() => setMenuOpen(true)} language={language} />;
+      case "yield": return <YieldPrediction openMenu={() => setMenuOpen(true)} language={language} />;
+      case "market": return <MarketPrice openMenu={() => setMenuOpen(true)} language={language} />;
+      case "rcControl": return <RcControl openMenu={() => setMenuOpen(true)} language={language} />;
       default:
-        return <HomeScreen openMenu={() => setMenuOpen(true)} />;
+        return <HomeScreen openMenu={() => setMenuOpen(true)} globalNpk={globalNpk} setGlobalNpk={setGlobalNpk} homeInputs={homeInputs} setHomeInputs={setHomeInputs} language={language} setLanguage={setLanguage} />;
     }
   };
 
@@ -59,6 +67,7 @@ export default function App() {
             setScreen(scr);
             setMenuOpen(false);
           }}
+          language={language}
         />
       )}
     </>

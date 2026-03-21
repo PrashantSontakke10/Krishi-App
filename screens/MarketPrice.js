@@ -1,17 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { t } from '../utils/translations';
 
-export default function MarketPrice({ openMenu }) {
+export default function MarketPrice({ openMenu, language }) {
   return (
     <View style={styles.container}>
       <View style={styles.headerRow}>
         <TouchableOpacity onPress={openMenu}>
           <Text style={styles.menu}>☰</Text>
         </TouchableOpacity>
-        <Text style={styles.header}>💰 Market Price</Text>
+        <Text style={styles.header}>{t("💰 Market Price", language)}</Text>
       </View>
       <View style={styles.content}>
-        <Text>Current market prices will be shown here</Text>
+        <Text>{t("Current market prices will be shown here", language)}</Text>
       </View>
     </View>
   );

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Modal, FlatList } from 'react-native';
 import axios from 'axios';
+import { t } from '../utils/translations';
 
 const CROPS = ["Arecanut", "Arhar/Tur", "Bajra", "Banana", "Barley", "Black pepper", "Cardamom", "Cashewnut", "Castor seed", "Coconut", "Coriander", "Cotton(lint)", "Cowpea(Lobia)", "Dry chillies", "Garlic", "Ginger", "Gram", "Groundnut", "Guar seed", "Horse-gram", "Jowar", "Jute", "Khesari", "Linseed", "Maize", "Masoor", "Mesta", "Moong(Green Gram)", "Moth", "Niger seed", "Oilseeds total", "Onion", "Other  Rabi pulses", "Other Cereals", "Other Kharif pulses", "Other Summer Pulses", "Peas & beans (Pulses)", "Potato", "Ragi", "Rapeseed &Mustard", "Rice", "Safflower", "Sannhamp", "Sesamum", "Small millets", "Soyabean", "Sugarcane", "Sunflower", "Sweet potato", "Tapioca", "Tobacco", "Turmeric", "Urad", "Wheat", "other oilseeds"];
 const SEASONS = ["Autumn", "Kharif", "Rabi", "Summer", "Whole Year", "Winter"];
 const STATES = ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"];
 
-export default function YieldPrediction({ openMenu }) {
+export default function YieldPrediction({ openMenu, language }) {
   const [inputs, setInputs] = useState({
     crop: '', season: '', state: '', area: '', rainfall: '', fertilizer: '', pesticide: ''
   });
@@ -71,27 +72,27 @@ export default function YieldPrediction({ openMenu }) {
         <TouchableOpacity style={styles.menuBtn} onPress={openMenu}>
           <Text style={styles.menu}>☰</Text>
         </TouchableOpacity>
-        <Text style={styles.header}>📊 Yield Prediction</Text>
+        <Text style={styles.header}>{t("📊 Yield Prediction", language)}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.subtitle}>Enter crop details and environmental conditions to predict yield.</Text>
+        <Text style={styles.subtitle}>{t("Enter crop details and environmental conditions to predict yield.", language)}</Text>
 
         <View style={styles.formCard}>
           <View style={styles.row}>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Crop</Text>
+              <Text style={styles.label}>{t("Crop", language)}</Text>
               <TouchableOpacity style={styles.inputDropdown} onPress={() => openDropdown('crop', CROPS)}>
                 <Text style={[styles.inputText, !inputs.crop && styles.placeholderText]} numberOfLines={1}>
-                  {inputs.crop || 'Select Crop'}
+                  {inputs.crop || t('Crop', language)}
                 </Text>
               </TouchableOpacity>
             </View>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Season</Text>
+              <Text style={styles.label}>{t("Season", language)}</Text>
               <TouchableOpacity style={styles.inputDropdown} onPress={() => openDropdown('season', SEASONS)}>
                 <Text style={[styles.inputText, !inputs.season && styles.placeholderText]} numberOfLines={1}>
-                  {inputs.season || 'Select Season'}
+                  {inputs.season || t('Season', language)}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -99,50 +100,50 @@ export default function YieldPrediction({ openMenu }) {
 
           <View style={styles.row}>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>State</Text>
+              <Text style={styles.label}>{t("State", language)}</Text>
               <TouchableOpacity style={styles.inputDropdown} onPress={() => openDropdown('state', STATES)}>
                 <Text style={[styles.inputText, !inputs.state && styles.placeholderText]} numberOfLines={1}>
-                  {inputs.state || 'Select State'}
+                  {inputs.state || t('State', language)}
                 </Text>
               </TouchableOpacity>
             </View>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Area (acres)</Text>
-              <TextInput style={styles.input} placeholder="e.g. 10" keyboardType="numeric" value={inputs.area} onChangeText={(val) => handleChange('area', val)} />
+              <Text style={styles.label}>{t("Area (acres)", language)}</Text>
+              <TextInput style={styles.input} placeholder={t("e.g. 10", language)} keyboardType="numeric" value={inputs.area} onChangeText={(val) => handleChange('area', val)} />
             </View>
           </View>
 
           <View style={styles.row}>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Rainfall (mm)</Text>
-              <TextInput style={styles.input} placeholder="e.g. 1000" keyboardType="numeric" value={inputs.rainfall} onChangeText={(val) => handleChange('rainfall', val)} />
+              <Text style={styles.label}>{t("Rainfall (mm)", language)}</Text>
+              <TextInput style={styles.input} placeholder={t("e.g. 1000", language)} keyboardType="numeric" value={inputs.rainfall} onChangeText={(val) => handleChange('rainfall', val)} />
             </View>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Fertilizer</Text>
-              <TextInput style={styles.input} placeholder="e.g. 250000" keyboardType="numeric" value={inputs.fertilizer} onChangeText={(val) => handleChange('fertilizer', val)} />
+              <Text style={styles.label}>{t("Fertilizer", language)}</Text>
+              <TextInput style={styles.input} placeholder={t("e.g. 250000", language)} keyboardType="numeric" value={inputs.fertilizer} onChangeText={(val) => handleChange('fertilizer', val)} />
             </View>
           </View>
 
           <View style={styles.fullInput}>
-            <Text style={styles.label}>Pesticide</Text>
-            <TextInput style={styles.input} placeholder="e.g. 1500" keyboardType="numeric" value={inputs.pesticide} onChangeText={(val) => handleChange('pesticide', val)} />
+            <Text style={styles.label}>{t("Pesticide", language)}</Text>
+            <TextInput style={styles.input} placeholder={t("e.g. 1500", language)} keyboardType="numeric" value={inputs.pesticide} onChangeText={(val) => handleChange('pesticide', val)} />
           </View>
 
           <TouchableOpacity style={styles.actionButton} onPress={predictYield} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.actionButtonText}>Predict Yield</Text>}
+            {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.actionButtonText}>{t("Predict Yield", language)}</Text>}
           </TouchableOpacity>
         </View>
 
         {result && (
           <View style={styles.resultCard}>
-            <Text style={styles.resultBadge}>PREDICTION</Text>
-            <Text style={styles.resultTitle}>Estimated Yield:</Text>
+            <Text style={styles.resultBadge}>{t("PREDICTION", language)}</Text>
+            <Text style={styles.resultTitle}>{t("Estimated Yield:", language)}</Text>
             
             {result.yield_per_acre_tonnes !== undefined ? (
               <View style={styles.resultDataBox}>
-                <Text style={styles.resultText}>Yield per Acre: <Text style={styles.resultValue}>{result.yield_per_acre_tonnes} Tonnes</Text></Text>
-                <Text style={styles.resultText}>Yield per Hectare: <Text style={styles.resultValue}>{result.yield_per_hectare_tonnes} Tonnes</Text></Text>
-                <Text style={styles.resultText}>Total Yield: <Text style={styles.resultValue}>{result.total_yield_tonnes} Tonnes</Text></Text>
+                <Text style={styles.resultText}>{t("Yield per Acre: ", language)}<Text style={styles.resultValue}>{result.yield_per_acre_tonnes} Tonnes</Text></Text>
+                <Text style={styles.resultText}>{t("Yield per Hectare: ", language)}<Text style={styles.resultValue}>{result.yield_per_hectare_tonnes} Tonnes</Text></Text>
+                <Text style={styles.resultText}>{t("Total Yield: ", language)}<Text style={styles.resultValue}>{result.total_yield_tonnes} Tonnes</Text></Text>
               </View>
             ) : typeof result === 'string' || typeof result === 'number' ? (
               <Text style={styles.resultHighlight}>{result}</Text>
@@ -150,7 +151,7 @@ export default function YieldPrediction({ openMenu }) {
               <Text style={styles.resultText}>Could not parse prediction.</Text>
             )}
             
-            <Text style={[styles.resultSubtext, {marginTop: 10}]}>Based on the provided parameters, this is the expected yield.</Text>
+            <Text style={[styles.resultSubtext, {marginTop: 10}]}>{t("Based on the provided parameters, this is the expected yield.", language)}</Text>
           </View>
         )}
       </ScrollView>
@@ -160,7 +161,7 @@ export default function YieldPrediction({ openMenu }) {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>
-              Select {activeField === 'crop' ? 'Crop' : activeField === 'season' ? 'Season' : 'State'}
+              {t("Select", language)} {activeField === 'crop' ? t('Crop', language) : activeField === 'season' ? t('Season', language) : t('State', language)}
             </Text>
             <FlatList
               data={modalData}
@@ -172,7 +173,7 @@ export default function YieldPrediction({ openMenu }) {
               )}
             />
             <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setModalVisible(false)}>
-              <Text style={styles.modalCloseText}>Close</Text>
+              <Text style={styles.modalCloseText}>{t("Close", language)}</Text>
             </TouchableOpacity>
           </View>
         </View>

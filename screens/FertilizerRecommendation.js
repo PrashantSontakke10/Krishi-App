@@ -1,19 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform, Modal, FlatList } from 'react-native';
 import axios from 'axios';
+import { t } from '../utils/translations';
+
+const SOIL_TYPES = ["Black", "Clayey", "Loamy", "Red", "Sandy"];
+const CROP_TYPES = ["Barley", "Cotton", "Ground Nuts", "Maize", "Millets", "Oil seeds", "Paddy", "Pulses", "Sugarcane", "Tobacco", "Wheat"];
 
 // Replace with your ESP IP
 const SENSOR_API = "http://10.157.70.174/temp";
 
-export default function FertilizerRecommendation({ openMenu }) {
+export default function FertilizerRecommendation({ openMenu, globalNpk, language }) {
   const [inputs, setInputs] = useState({
     Temperature: '', Humidity: '', Moisture: '',
     Soil_Type: '', Crop_Type: '',
-    Nitrogen: '', Potassium: '', Phosphorous: ''
+    Nitrogen: globalNpk ? String(Math.round(globalNpk.Nitrogen || globalNpk.N || 0)) : '',
+    Potassium: globalNpk ? String(Math.round(globalNpk.Potassium || globalNpk.K || 0)) : '',
+    Phosphorous: globalNpk ? String(Math.round(globalNpk.Phosphorus || globalNpk.Phosphorous || globalNpk.P || 0)) : ''
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
   const [sensorStatus, setSensorStatus] = useState("Connecting...");
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalData, setModalData] = useState([]);
+  const [activeField, setActiveField] = useState(null);
 
   // Auto-fetch temperature from ESP32
   useEffect(() => {
@@ -36,6 +46,17 @@ export default function FertilizerRecommendation({ openMenu }) {
 
   const handleChange = (name, value) => {
     setInputs(prev => ({ ...prev, [name]: value }));
+  };
+
+  const openDropdown = (field, data) => {
+    setActiveField(field);
+    setModalData(data);
+    setModalVisible(true);
+  };
+
+  const selectItem = (item) => {
+    handleChange(activeField, item);
+    setModalVisible(false);
   };
 
   const predictFertilizer = async () => {
@@ -79,16 +100,16 @@ export default function FertilizerRecommendation({ openMenu }) {
         <TouchableOpacity style={styles.menuBtn} onPress={openMenu}>
           <Text style={styles.menu}>☰</Text>
         </TouchableOpacity>
-        <Text style={styles.header}>🌿 AI Fertilizer Planner</Text>
+        <Text style={styles.header}>{t("🧪 Smart Fertilizer Planner", language)}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.subtitle}>Enter soil metrics and crop details to get precise fertilizer suggestions.</Text>
+        <Text style={styles.subtitle}>{t("Enter soil metrics and crop details to get precise fertilizer suggestions.", language)}</Text>
 
         <View style={styles.formCard}>
 
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Sensor Data</Text>
+            <Text style={styles.sectionTitle}>{t("Sensor Data", language)}</Text>
             <Text style={[styles.sensorBadge, sensorStatus.includes("Live") ? styles.sensorLive : styles.sensorDead]}>
               {sensorStatus.includes("Live") ? "O" : "X"} {sensorStatus}
             </Text>
@@ -96,68 +117,99 @@ export default function FertilizerRecommendation({ openMenu }) {
 
           <View style={styles.row}>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Temp (°C) - {sensorStatus.includes("Live") ? "AUTO" : "MANUAL"}</Text>
-              <TextInput style={[styles.input, sensorStatus.includes("Live") && styles.inputDisabled]} placeholder="Auto" keyboardType="numeric" value={inputs.Temperature} onChangeText={(val) => handleChange('Temperature', val)} editable={!sensorStatus.includes("Live")} />
+              <Text style={styles.label}>{t("Temp (°C)", language)}</Text>
+              <TextInput style={[styles.input, sensorStatus.includes("Live") && styles.inputDisabled]} placeholder={t("Auto", language)} keyboardType="numeric" value={inputs.Temperature} onChangeText={(val) => handleChange('Temperature', val)} editable={!sensorStatus.includes("Live")} />
             </View>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Humidity (%)</Text>
-              <TextInput style={styles.input} placeholder="e.g. 60" keyboardType="numeric" value={inputs.Humidity} onChangeText={(val) => handleChange('Humidity', val)} />
+              <Text style={styles.label}>{t("Humidity (%)", language)}</Text>
+              <TextInput style={styles.input} placeholder={t("e.g. 60", language)} keyboardType="numeric" value={inputs.Humidity} onChangeText={(val) => handleChange('Humidity', val)} />
             </View>
           </View>
 
           <View style={styles.fullInput}>
-            <Text style={styles.label}>Soil Moisture</Text>
-            <TextInput style={styles.input} placeholder="e.g. 40" keyboardType="numeric" value={inputs.Moisture} onChangeText={(val) => handleChange('Moisture', val)} />
+            <Text style={styles.label}>{t("Soil Moisture", language)}</Text>
+            <TextInput style={styles.input} placeholder={t("e.g. 40", language)} keyboardType="numeric" value={inputs.Moisture} onChangeText={(val) => handleChange('Moisture', val)} />
           </View>
 
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Context & Nutrients</Text>
+            <Text style={styles.sectionTitle}>{t("Context & Nutrients", language)}</Text>
           </View>
 
           <View style={styles.row}>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Soil Type</Text>
-              <TextInput style={styles.input} placeholder="e.g. loamy, sandy" value={inputs.Soil_Type} onChangeText={(val) => handleChange('Soil_Type', val)} />
+              <Text style={styles.label}>{t("Soil Type", language)}</Text>
+              <TouchableOpacity style={styles.inputDropdown} onPress={() => openDropdown('Soil_Type', SOIL_TYPES)}>
+                <Text style={[styles.inputText, !inputs.Soil_Type && styles.placeholderText]} numberOfLines={1}>
+                  {inputs.Soil_Type ? t(inputs.Soil_Type, language) : t("Soil Type", language)}
+                </Text>
+              </TouchableOpacity>
             </View>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Crop Type</Text>
-              <TextInput style={styles.input} placeholder="e.g. rice, wheat" value={inputs.Crop_Type} onChangeText={(val) => handleChange('Crop_Type', val)} />
+              <Text style={styles.label}>{t("Crop Type", language)}</Text>
+              <TouchableOpacity style={styles.inputDropdown} onPress={() => openDropdown('Crop_Type', CROP_TYPES)}>
+                <Text style={[styles.inputText, !inputs.Crop_Type && styles.placeholderText]} numberOfLines={1}>
+                  {inputs.Crop_Type ? t(inputs.Crop_Type, language) : t("Crop Type", language)}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.row}>
             <View style={styles.thirdInput}>
               <Text style={styles.label}>N</Text>
-              <TextInput style={styles.input} placeholder="e.g. 10" keyboardType="numeric" value={inputs.Nitrogen} onChangeText={(val) => handleChange('Nitrogen', val)} />
+              <TextInput style={styles.input} placeholder={t("e.g. 10", language)} keyboardType="numeric" value={inputs.Nitrogen} onChangeText={(val) => handleChange('Nitrogen', val)} />
             </View>
             <View style={styles.thirdInput}>
               <Text style={styles.label}>P</Text>
-              <TextInput style={styles.input} placeholder="e.g. 6" keyboardType="numeric" value={inputs.Phosphorous} onChangeText={(val) => handleChange('Phosphorous', val)} />
+              <TextInput style={styles.input} placeholder={t("e.g. 6", language)} keyboardType="numeric" value={inputs.Phosphorous} onChangeText={(val) => handleChange('Phosphorous', val)} />
             </View>
             <View style={styles.thirdInput}>
               <Text style={styles.label}>K</Text>
-              <TextInput style={styles.input} placeholder="e.g. 5" keyboardType="numeric" value={inputs.Potassium} onChangeText={(val) => handleChange('Potassium', val)} />
+              <TextInput style={styles.input} placeholder={t("e.g. 5", language)} keyboardType="numeric" value={inputs.Potassium} onChangeText={(val) => handleChange('Potassium', val)} />
             </View>
           </View>
 
           <TouchableOpacity style={styles.actionButton} onPress={predictFertilizer} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.actionButtonText}>Analyze & Predict</Text>}
+            {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.actionButtonText}>{t("Analyze & Predict", language)}</Text>}
           </TouchableOpacity>
         </View>
 
         {result && (
           <View style={styles.resultCard}>
-            <Text style={styles.resultBadge}>AI MATCH</Text>
-            <Text style={styles.resultTitle}>Best Fertilizer:</Text>
+            <Text style={styles.resultBadge}>{t("AI MATCH", language)}</Text>
+            <Text style={styles.resultTitle}>{t("Best Fertilizer for You:", language)}</Text>
             {typeof result === 'string' ? (
               <Text style={styles.resultHighlight}>{result}</Text>
             ) : (
               <Text style={styles.resultText}>{JSON.stringify(result)}</Text>
             )}
-            <Text style={styles.resultSubtext}>Based on the current environmental metrics, this fertilizer brings maximum efficiency to your field.</Text>
+            <Text style={styles.resultSubtext}>{t("Based on the current environmental metrics, this fertilizer brings maximum efficiency to your field.", language)}</Text>
           </View>
         )}
       </ScrollView>
+
+      {/* Dropdown Modal */}
+      <Modal visible={modalVisible} transparent={true} animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              {t("Select ", language)}{activeField === 'Soil_Type' ? t('Soil Type', language) : t('Crop Type', language)}
+            </Text>
+            <FlatList
+              data={modalData}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.modalItem} onPress={() => selectItem(item)}>
+                  <Text style={styles.modalItemText}>{t(item, language)}</Text>
+                </TouchableOpacity>
+              )}
+            />
+            <TouchableOpacity style={styles.modalCloseBtn} onPress={() => setModalVisible(false)}>
+              <Text style={styles.modalCloseText}>{t("Close", language)}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
@@ -190,5 +242,17 @@ const styles = StyleSheet.create({
   resultTitle: { fontSize: 15, color: '#fff', opacity: 0.8, fontWeight: '600', marginBottom: 5 },
   resultHighlight: { fontSize: 42, fontWeight: '900', color: '#A5D6A7', textTransform: 'capitalize', marginBottom: 15, letterSpacing: -1 },
   resultText: { fontSize: 18, color: '#A5D6A7', marginBottom: 15 },
-  resultSubtext: { fontSize: 14, color: '#fff', opacity: 0.7, lineHeight: 20 }
+  resultSubtext: { fontSize: 14, color: '#fff', opacity: 0.7, lineHeight: 20 },
+
+  /* Modal & Dropdown Styles */
+  inputDropdown: { backgroundColor: '#F9FAFB', borderWidth: 1, borderColor: '#EAECF0', borderRadius: 12, paddingVertical: 14, paddingHorizontal: 16, justifyContent: 'center' },
+  inputText: { fontSize: 16, color: '#333', fontWeight: '500' },
+  placeholderText: { color: '#999' },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 },
+  modalContent: { backgroundColor: '#fff', width: '100%', maxHeight: '80%', borderRadius: 16, overflow: 'hidden', paddingBottom: 20 },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', textAlign: 'center', paddingVertical: 15, backgroundColor: '#F4F7F6', borderBottomWidth: 1, borderColor: '#EAECF0' },
+  modalItem: { paddingVertical: 15, paddingHorizontal: 20, borderBottomWidth: 1, borderColor: '#EAECF0' },
+  modalItemText: { fontSize: 16, color: '#333' },
+  modalCloseBtn: { marginTop: 15, marginHorizontal: 20, backgroundColor: '#2E7D32', borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
+  modalCloseText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
 });

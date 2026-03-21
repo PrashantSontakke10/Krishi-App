@@ -1,45 +1,45 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
+import { t } from '../utils/translations';
 
-export default function Sidebar({ onClose, navigate }) {
+export default function Sidebar({ onClose, navigate, language }) {
 
   return (
     <View style={styles.overlay}>
       <ScrollView style={styles.menu} contentContainerStyle={styles.menuContent}>
 
-        <Text style={styles.title}>🌱 KrishiSetu</Text>
+        <Text style={styles.title}>{t("🌱 KrishiSetu", language)}</Text>
 
         <TouchableOpacity onPress={() => navigate("home")}>
-          <Text style={styles.item}>🏠 Dashboard</Text>
+          <Text style={styles.item}>{t("🏠 Dashboard", language)}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigate("rcControl")}>
-          <Text style={styles.item}>🏎️ RC Remote</Text>
+          <Text style={styles.item}>{t("🏎️ RC Remote", language)}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigate("crop")}>
-          <Text style={styles.item}>🌾 Crop Recommendation</Text>
+          <Text style={styles.item}>{t("🌾 Crop Recommendation", language)}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigate("fertilizer")}>
-          <Text style={styles.item}>🌿 Fertilizer Recommendation</Text>
+          <Text style={styles.item}>{t("🌿 Fertilizer Recommendation", language)}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigate("disease")}>
-          <Text style={styles.item}>🦠 Disease Detection</Text>
+          <Text style={styles.item}>{t("🦠 Disease Detection", language)}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigate("yield")}>
-          <Text style={styles.item}>📊 Yield Prediction</Text>
+          <Text style={styles.item}>{t("📊 Yield Prediction", language)}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigate("market")}>
-          <Text style={styles.item}>💰 Market Price</Text>
+          <Text style={styles.item}>{t("💰 Market Price", language)}</Text>
         </TouchableOpacity>
 
-
         <TouchableOpacity onPress={onClose}>
-          <Text style={styles.close}>Close</Text>
+          <Text style={styles.close}>{t("Close", language)}</Text>
         </TouchableOpacity>
 
       </ScrollView>

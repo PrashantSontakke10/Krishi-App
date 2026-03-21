@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import Paho from 'paho-mqtt';
+import { t } from '../utils/translations';
 
 const MQTT_BROKER = '10.13.19.102'; // Hive MQ IP
 const MQTT_PORT = 8000; // MUST BE WEBSOCKET PORT (For HiveMQ it usually defaults to 8000)
 
-export default function RcControl({ openMenu }) {
+export default function RcControl({ openMenu, language }) {
     const [client, setClient] = useState(null);
     const [connected, setConnected] = useState(false);
-    const [lastCmdText, setLastCmdText] = useState('Last: none');
-    const [replyText, setReplyText] = useState('Reply: waiting');
+    const [lastCmdText, setLastCmdText] = useState('None');
+    const [replyText, setReplyText] = useState('Waiting');
 
     // Custom states for actions
     const [relayState, setRelayState] = useState(false); // false = OFF, true = ON
@@ -30,7 +31,7 @@ export default function RcControl({ openMenu }) {
 
         mqttClient.onMessageArrived = (message) => {
             if (message.destinationName === 'rc/car/status') {
-                setReplyText(`Reply: ${message.payloadString}`);
+                setReplyText(message.payloadString);
             }
         };
 
@@ -79,12 +80,12 @@ export default function RcControl({ openMenu }) {
 
     const handleTouchDown = (dir) => {
         sendMqttMessage('rc/car/control', dir);
-        setLastCmdText(`Last: ${dir}`);
+        setLastCmdText(dir);
     };
 
     const handleTouchUp = () => {
         sendMqttMessage('rc/car/control', 'STOP');
-        setLastCmdText('Last: STOP');
+        setLastCmdText('STOP');
     };
 
     const handleRelayToggle = () => {
@@ -93,7 +94,7 @@ export default function RcControl({ openMenu }) {
 
         const cmd = newState ? 'RELAY_ON' : 'RELAY_OFF';
         sendMqttMessage('rc/car/control', cmd);
-        setLastCmdText(`Last: ${cmd}`);
+        setLastCmdText(cmd.replace('_', ' '));
     };
 
     const handleStopClick = () => {
@@ -107,16 +108,16 @@ export default function RcControl({ openMenu }) {
                 <TouchableOpacity style={styles.menuBtn} onPress={openMenu}>
                     <Text style={styles.menu}>☰</Text>
                 </TouchableOpacity>
-                <Text style={styles.header}>🏎️ RC Control</Text>
+                <Text style={styles.header}>{t("🏎️ RC Control", language)}</Text>
             </View>
 
             <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-                <Text style={styles.subtitle}>Control your Krishi rover and view live camera feed right from your dashboard.</Text>
+                <Text style={styles.subtitle}>{t("Control your Krishi rover and view live camera feed right from your dashboard.", language)}</Text>
 
                 {/* MQTT Connection Status Indicator */}
                 <View style={styles.statusBox}>
                     <Text style={[styles.statusText, { color: connected ? '#4CAF50' : '#f44336' }]}>
-                        {connected ? '✓ Connected' : 'X Disconnected'}
+                        {connected ? t("✓ Connected", language) : t("X Disconnected", language)}
                     </Text>
                     <Text style={styles.brokerText}>ws://{MQTT_BROKER}:{MQTT_PORT}</Text>
                 </View>
@@ -124,13 +125,13 @@ export default function RcControl({ openMenu }) {
                 {/* Video Feed Card */}
                 <View style={styles.formCard}>
                     <View style={styles.videoSection}>
-                        <Text style={styles.videoText}>Camera Feed Unavailable</Text>
+                        <Text style={styles.videoText}>{t("Camera Feed Unavailable", language)}</Text>
                     </View>
                 </View>
 
                 {/* Controls Card */}
                 <View style={[styles.formCard, { marginTop: 20 }]}>
-                    <Text style={styles.sectionTitle}>Navigation</Text>
+                    <Text style={styles.sectionTitle}>{t("Navigation", language)}</Text>
 
                     <View style={styles.padContainer}>
                         <TouchableOpacity
@@ -139,7 +140,7 @@ export default function RcControl({ openMenu }) {
                             onPressOut={handleTouchUp}
                             delayPressIn={0}
                         >
-                            <Text style={styles.navBtnText}>Forward</Text>
+                            <Text style={styles.navBtnText}>{t("Forward", language)}</Text>
                         </TouchableOpacity>
 
                         <View style={styles.padRow}>
@@ -149,14 +150,14 @@ export default function RcControl({ openMenu }) {
                                 onPressOut={handleTouchUp}
                                 delayPressIn={0}
                             >
-                                <Text style={styles.navBtnText}>Left</Text>
+                                <Text style={styles.navBtnText}>{t("Left", language)}</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
                                 style={[styles.navBtn, styles.stopBtn, { marginHorizontal: 15 }]}
                                 onPress={handleStopClick}
                             >
-                                <Text style={styles.stopBtnText}>STOP</Text>
+                                <Text style={styles.stopBtnText}>{t("STOP", language)}</Text>
                             </TouchableOpacity>
 
                             <TouchableOpacity
@@ -165,7 +166,7 @@ export default function RcControl({ openMenu }) {
                                 onPressOut={handleTouchUp}
                                 delayPressIn={0}
                             >
-                                <Text style={styles.navBtnText}>Right</Text>
+                                <Text style={styles.navBtnText}>{t("Right", language)}</Text>
                             </TouchableOpacity>
                         </View>
 
@@ -175,17 +176,17 @@ export default function RcControl({ openMenu }) {
                             onPressOut={handleTouchUp}
                             delayPressIn={0}
                         >
-                            <Text style={styles.navBtnText}>Backward</Text>
+                            <Text style={styles.navBtnText}>{t("Backward", language)}</Text>
                         </TouchableOpacity>
                     </View>
 
                     {/* MQTT Action Logs */}
                     <View style={styles.logBox}>
-                        <Text style={styles.logText}>{lastCmdText}</Text>
-                        <Text style={[styles.logText, { color: '#B8860B', marginTop: 5 }]}>{replyText}</Text>
+                        <Text style={styles.logText}>{t("Last Command:", language)} {t(lastCmdText, language)}</Text>
+                        <Text style={[styles.logText, { color: '#B8860B', marginTop: 5 }]}>{t("Reply:", language)} {t(replyText, language)}</Text>
                     </View>
 
-                    <Text style={[styles.sectionTitle, { marginTop: 20 }]}>Commands</Text>
+                    <Text style={[styles.sectionTitle, { marginTop: 20 }]}>{t("Commands", language)}</Text>
 
                     <View style={styles.actionButtons}>
                         <TouchableOpacity
@@ -193,14 +194,14 @@ export default function RcControl({ openMenu }) {
                             onPress={handleRelayToggle}
                         >
                             <Text style={styles.actionButtonText}>
-                                {relayState ? 'RELAY ON' : 'RELAY OFF'}
+                                {relayState ? t('RELAY ON', language) : t('RELAY OFF', language)}
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.actionButton}>
-                            <Text style={styles.actionButtonText}>Camera</Text>
+                            <Text style={styles.actionButtonText}>{t("Camera", language)}</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.actionButton}>
-                            <Text style={styles.actionButtonText}>Get Sensor Values</Text>
+                            <Text style={styles.actionButtonText}>{t("Get Sensor Values", language)}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

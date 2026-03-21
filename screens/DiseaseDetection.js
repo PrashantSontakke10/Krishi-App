@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import axios from 'axios';
+import { t } from '../utils/translations';
 
-export default function DiseaseDetection({ openMenu }) {
+export default function DiseaseDetection({ openMenu, language }) {
   const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -72,14 +73,14 @@ export default function DiseaseDetection({ openMenu }) {
         <TouchableOpacity style={styles.menuBtn} onPress={openMenu}>
           <Text style={styles.menu}>☰</Text>
         </TouchableOpacity>
-        <Text style={styles.header}>🦠 AI Disease Scanner</Text>
+        <Text style={styles.header}>{t("🦠 AI Disease Scanner", language)}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.subtitle}>Upload a clear image of a plant leaf to automatically detect potential diseases and health issues.</Text>
+        <Text style={styles.subtitle}>{t("Upload a clear image of a plant leaf to automatically detect potential diseases and health issues.", language)}</Text>
 
         <View style={styles.formCard}>
-          <Text style={styles.sectionTitle}>Image Upload</Text>
+          <Text style={styles.sectionTitle}>{t("Image Upload", language)}</Text>
 
           <TouchableOpacity style={styles.imagePickerArea} onPress={pickImage}>
             {image ? (
@@ -87,26 +88,26 @@ export default function DiseaseDetection({ openMenu }) {
             ) : (
               <View style={styles.placeholderBox}>
                 <Text style={styles.placeholderIcon}>📸</Text>
-                <Text style={styles.placeholderText}>Tap to choose from Gallery</Text>
+                <Text style={styles.placeholderText}>{t("Tap to choose from Gallery", language)}</Text>
               </View>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity style={[styles.actionButton, !image && styles.actionButtonDisabled]} onPress={uploadAndPredict} disabled={loading || !image}>
-            {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.actionButtonText}>Scan Disease</Text>}
+            {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.actionButtonText}>{t("Scan Disease", language)}</Text>}
           </TouchableOpacity>
         </View>
 
         {result && (
           <View style={styles.resultCard}>
-            <Text style={styles.resultBadge}>DETECTION COMPLETE</Text>
-            <Text style={styles.resultTitle}>Diagnosis:</Text>
+            <Text style={styles.resultBadge}>{t("DETECTION COMPLETE", language)}</Text>
+            <Text style={styles.resultTitle}>{t("Diagnosis:", language)}</Text>
             {typeof result === 'string' ? (
               <Text style={styles.resultHighlight}>{result.replace(/_/g, ' ')}</Text>
             ) : (
               <Text style={styles.resultText}>{JSON.stringify(result)}</Text>
             )}
-            <Text style={styles.resultSubtext}>This result is predicted by our AI model. For advanced agricultural damage, consult a local botanist.</Text>
+            <Text style={styles.resultSubtext}>{t("This result is predicted by our AI model. For advanced agricultural damage, consult a local botanist.", language)}</Text>
           </View>
         )}
       </ScrollView>

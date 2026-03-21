@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, ActivityIndicator, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import axios from 'axios';
+import { t } from '../utils/translations';
 
-export default function CropRecommendation({ openMenu }) {
+export default function CropRecommendation({ openMenu, globalNpk, language }) {
   const [inputs, setInputs] = useState({
-    N: '', P: '', K: '',
+    N: globalNpk ? String(Math.round(globalNpk.Nitrogen || globalNpk.N || 0)) : '',
+    P: globalNpk ? String(Math.round(globalNpk.Phosphorus || globalNpk.Phosphorous || globalNpk.P || 0)) : '',
+    K: globalNpk ? String(Math.round(globalNpk.Potassium || globalNpk.K || 0)) : '',
     temperature: '', humidity: '', ph: '', rainfall: ''
   });
   const [loading, setLoading] = useState(false);
@@ -54,66 +57,66 @@ export default function CropRecommendation({ openMenu }) {
         <TouchableOpacity style={styles.menuBtn} onPress={openMenu}>
           <Text style={styles.menu}>☰</Text>
         </TouchableOpacity>
-        <Text style={styles.header}>🌾 AI Crop Planner</Text>
+        <Text style={styles.header}>{t("🌾 AI Crop Planner", language)}</Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={styles.subtitle}>Enter soil metrics and weather condition to get real-time AI crop suggestions.</Text>
+        <Text style={styles.subtitle}>{t("Enter soil metrics and weather condition to get real-time AI crop suggestions.", language)}</Text>
 
         <View style={styles.formCard}>
           <View style={styles.row}>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Nitrogen (N)</Text>
-              <TextInput style={styles.input} placeholder="e.g. 90" keyboardType="numeric" value={inputs.N} onChangeText={(val) => handleChange('N', val)} />
+              <Text style={styles.label}>{t("Nitrogen (N)", language)}</Text>
+              <TextInput style={styles.input} placeholder={t("e.g. 90", language)} keyboardType="numeric" value={inputs.N} onChangeText={(val) => handleChange('N', val)} />
             </View>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Phosphorus (P)</Text>
-              <TextInput style={styles.input} placeholder="e.g. 40" keyboardType="numeric" value={inputs.P} onChangeText={(val) => handleChange('P', val)} />
-            </View>
-          </View>
-
-          <View style={styles.row}>
-            <View style={styles.halfInput}>
-              <Text style={styles.label}>Potassium (K)</Text>
-              <TextInput style={styles.input} placeholder="e.g. 40" keyboardType="numeric" value={inputs.K} onChangeText={(val) => handleChange('K', val)} />
-            </View>
-            <View style={styles.halfInput}>
-              <Text style={styles.label}>Temperature (°C)</Text>
-              <TextInput style={styles.input} placeholder="e.g. 25" keyboardType="numeric" value={inputs.temperature} onChangeText={(val) => handleChange('temperature', val)} />
+              <Text style={styles.label}>{t("Phosphorus (P)", language)}</Text>
+              <TextInput style={styles.input} placeholder={t("e.g. 40", language)} keyboardType="numeric" value={inputs.P} onChangeText={(val) => handleChange('P', val)} />
             </View>
           </View>
 
           <View style={styles.row}>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>Humidity (%)</Text>
-              <TextInput style={styles.input} placeholder="e.g. 80" keyboardType="numeric" value={inputs.humidity} onChangeText={(val) => handleChange('humidity', val)} />
+              <Text style={styles.label}>{t("Potassium (K)", language)}</Text>
+              <TextInput style={styles.input} placeholder={t("e.g. 40", language)} keyboardType="numeric" value={inputs.K} onChangeText={(val) => handleChange('K', val)} />
             </View>
             <View style={styles.halfInput}>
-              <Text style={styles.label}>ph Level</Text>
-              <TextInput style={styles.input} placeholder="e.g. 6.5" keyboardType="numeric" value={inputs.ph} onChangeText={(val) => handleChange('ph', val)} />
+              <Text style={styles.label}>{t("Temp (°C)", language)}</Text>
+              <TextInput style={styles.input} placeholder={t("e.g. 25", language)} keyboardType="numeric" value={inputs.temperature} onChangeText={(val) => handleChange('temperature', val)} />
+            </View>
+          </View>
+
+          <View style={styles.row}>
+            <View style={styles.halfInput}>
+              <Text style={styles.label}>{t("Humidity (%)", language)}</Text>
+              <TextInput style={styles.input} placeholder={t("e.g. 80", language)} keyboardType="numeric" value={inputs.humidity} onChangeText={(val) => handleChange('humidity', val)} />
+            </View>
+            <View style={styles.halfInput}>
+              <Text style={styles.label}>{t("pH Level", language)}</Text>
+              <TextInput style={styles.input} placeholder={t("e.g. 6.5", language)} keyboardType="numeric" value={inputs.ph} onChangeText={(val) => handleChange('ph', val)} />
             </View>
           </View>
 
           <View style={styles.fullInput}>
-            <Text style={styles.label}>Rainfall (mm)</Text>
-            <TextInput style={styles.input} placeholder="e.g. 200" keyboardType="numeric" value={inputs.rainfall} onChangeText={(val) => handleChange('rainfall', val)} />
+            <Text style={styles.label}>{t("Rainfall (mm)", language)}</Text>
+            <TextInput style={styles.input} placeholder={t("e.g. 200", language)} keyboardType="numeric" value={inputs.rainfall} onChangeText={(val) => handleChange('rainfall', val)} />
           </View>
 
           <TouchableOpacity style={styles.actionButton} onPress={predictCrop} disabled={loading}>
-            {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.actionButtonText}>Analyze & Predict</Text>}
+            {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.actionButtonText}>{t("Analyze & Predict", language)}</Text>}
           </TouchableOpacity>
         </View>
 
         {result && (
           <View style={styles.resultCard}>
-            <Text style={styles.resultBadge}>AI MATCH</Text>
-            <Text style={styles.resultTitle}>Best Crop for You:</Text>
+            <Text style={styles.resultBadge}>{t("AI MATCH", language)}</Text>
+            <Text style={styles.resultTitle}>{t("Best Crop for You:", language)}</Text>
             {typeof result === 'string' ? (
               <Text style={styles.resultHighlight}>{result}</Text>
             ) : (
               <Text style={styles.resultText}>{JSON.stringify(result)}</Text>
             )}
-            <Text style={styles.resultSubtext}>Based on parameters inputted, this crop will yield the best growth rate and highest market returns.</Text>
+            <Text style={styles.resultSubtext}>{t("Based on parameters inputted, this crop will yield the best growth rate and highest market returns.", language)}</Text>
           </View>
         )}
       </ScrollView>
