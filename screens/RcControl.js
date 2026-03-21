@@ -159,15 +159,7 @@ export default function RcControl({ openMenu, language }) {
                         ) : (
                                 <WebView
                                     key={streamKey}
-                                    source={{ 
-                                        html: `
-                                            <html>
-                                                <body style="margin:0;padding:0;background-color:#000;display:flex;justify-content:center;align-items:center;height:100vh;">
-                                                    <img src="${STREAM_URL}" style="width:100%; height:auto; object-fit:contain;" />
-                                                </body>
-                                            </html>
-                                        ` 
-                                    }}
+                                    source={{ uri: STREAM_URL }}
                                     style={styles.webview}
                                     onError={() => setStreamError(true)}
                                     onHttpError={() => setStreamError(true)}
