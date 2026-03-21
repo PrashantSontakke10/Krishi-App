@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import axios from 'axios';
 import Paho from 'paho-mqtt';
 import { WebView } from 'react-native-webview';
 import { t } from '../utils/translations';
 
+const CONTROL_URL = 'http://10.13.19.84';
 const STREAM_URL = 'http://10.13.19.84:81/stream';
 
 const MQTT_BROKER = '10.13.19.102'; // Hive MQ IP
@@ -64,6 +66,18 @@ export default function RcControl({ openMenu, language }) {
         } catch (e) {
             console.log("MQTT Connect error", e);
         }
+
+        const wakeUpCamera = async () => {
+            try {
+                // Hits common ESP32-CAM start stream commands on port 80 to wake up port 81
+                await axios.get(`${CONTROL_URL}/control?var=framesize&val=6`); // VGA
+                console.log("Sent Start Stream command to camera.");
+            } catch (e) {
+                console.log("Could not wake up camera (likely port 80 unreachable):", e);
+            }
+        };
+
+        wakeUpCamera();
 
         // Cleanup on unmount
         return () => {
