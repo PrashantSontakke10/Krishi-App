@@ -3,12 +3,15 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Activi
 import axios from 'axios';
 import { t } from '../utils/translations';
 
-export default function CropRecommendation({ openMenu, globalNpk, language }) {
+export default function CropRecommendation({ openMenu, globalNpk, language, homeInputs }) {
   const [inputs, setInputs] = useState({
     N: globalNpk ? String(Math.round(globalNpk.Nitrogen || globalNpk.N || 0)) : '',
     P: globalNpk ? String(Math.round(globalNpk.Phosphorus || globalNpk.Phosphorous || globalNpk.P || 0)) : '',
     K: globalNpk ? String(Math.round(globalNpk.Potassium || globalNpk.K || 0)) : '',
-    temperature: '', humidity: '', ph: '', rainfall: ''
+    temperature: homeInputs?.temperature || homeInputs?.liveTemp || '',
+    humidity: homeInputs?.humidity || homeInputs?.liveHumidity || '',
+    ph: homeInputs?.ph || '',
+    rainfall: homeInputs?.rainfall || ''
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);

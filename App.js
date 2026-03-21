@@ -45,12 +45,12 @@ export default function App() {
 
   const renderScreen = () => {
     switch (screen) {
-      case "crop": return <CropRecommendation openMenu={() => setMenuOpen(true)} globalNpk={globalNpk} language={language} />;
-      case "fertilizer": return <FertilizerRecommendation openMenu={() => setMenuOpen(true)} globalNpk={globalNpk} language={language} />;
-      case "disease": return <DiseaseDetection openMenu={() => setMenuOpen(true)} language={language} />;
-      case "yield": return <YieldPrediction openMenu={() => setMenuOpen(true)} language={language} />;
-      case "market": return <MarketPrice openMenu={() => setMenuOpen(true)} language={language} />;
-      case "rcControl": return <RcControl openMenu={() => setMenuOpen(true)} language={language} />;
+      case "crop": return <CropRecommendation openMenu={() => setMenuOpen(true)} globalNpk={globalNpk} homeInputs={homeInputs} language={language} />;
+      case "fertilizer": return <FertilizerRecommendation openMenu={() => setMenuOpen(true)} globalNpk={globalNpk} homeInputs={homeInputs} language={language} />;
+      case "disease": return <DiseaseDetection openMenu={() => setMenuOpen(true)} homeInputs={homeInputs} language={language} />;
+      case "yield": return <YieldPrediction openMenu={() => setMenuOpen(true)} homeInputs={homeInputs} language={language} />;
+      case "market": return <MarketPrice openMenu={() => setMenuOpen(true)} homeInputs={homeInputs} language={language} />;
+      case "rcControl": return <RcControl openMenu={() => setMenuOpen(true)} homeInputs={homeInputs} language={language} />;
       default:
         return <HomeScreen openMenu={() => setMenuOpen(true)} globalNpk={globalNpk} setGlobalNpk={setGlobalNpk} homeInputs={homeInputs} setHomeInputs={setHomeInputs} language={language} setLanguage={setLanguage} />;
     }

@@ -7,9 +7,9 @@ const CROPS = ["Arecanut", "Arhar/Tur", "Bajra", "Banana", "Barley", "Black pepp
 const SEASONS = ["Autumn", "Kharif", "Rabi", "Summer", "Whole Year", "Winter"];
 const STATES = ["Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chhattisgarh", "Delhi", "Goa", "Gujarat", "Haryana", "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry", "Punjab", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand", "West Bengal"];
 
-export default function YieldPrediction({ openMenu, language }) {
+export default function YieldPrediction({ openMenu, language, homeInputs }) {
   const [inputs, setInputs] = useState({
-    crop: '', season: '', state: '', area: '', rainfall: '', fertilizer: '', pesticide: ''
+    crop: '', season: '', state: '', area: '', rainfall: homeInputs?.rainfall || '', fertilizer: '', pesticide: ''
   });
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
@@ -113,20 +113,20 @@ export default function YieldPrediction({ openMenu, language }) {
             </View>
           </View>
 
+          <View style={styles.fullInput}>
+            <Text style={styles.label}>{t("Rainfall (Average of crop season in mm)", language)}</Text>
+            <TextInput style={styles.input} placeholder={t("e.g. 1000", language)} keyboardType="numeric" value={inputs.rainfall} onChangeText={(val) => handleChange('rainfall', val)} />
+          </View>
+
           <View style={styles.row}>
-            <View style={styles.halfInput}>
-              <Text style={styles.label}>{t("Rainfall (mm)", language)}</Text>
-              <TextInput style={styles.input} placeholder={t("e.g. 1000", language)} keyboardType="numeric" value={inputs.rainfall} onChangeText={(val) => handleChange('rainfall', val)} />
-            </View>
             <View style={styles.halfInput}>
               <Text style={styles.label}>{t("Fertilizer", language)}</Text>
               <TextInput style={styles.input} placeholder={t("e.g. 250000", language)} keyboardType="numeric" value={inputs.fertilizer} onChangeText={(val) => handleChange('fertilizer', val)} />
             </View>
-          </View>
-
-          <View style={styles.fullInput}>
-            <Text style={styles.label}>{t("Pesticide", language)}</Text>
-            <TextInput style={styles.input} placeholder={t("e.g. 1500", language)} keyboardType="numeric" value={inputs.pesticide} onChangeText={(val) => handleChange('pesticide', val)} />
+            <View style={styles.halfInput}>
+              <Text style={styles.label}>{t("Pesticide", language)}</Text>
+              <TextInput style={styles.input} placeholder={t("e.g. 1500", language)} keyboardType="numeric" value={inputs.pesticide} onChangeText={(val) => handleChange('pesticide', val)} />
+            </View>
           </View>
 
           <TouchableOpacity style={styles.actionButton} onPress={predictYield} disabled={loading}>

@@ -19,6 +19,7 @@ const API = "http://10.157.70.174/temp";
 export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInputs, setHomeInputs, language, setLanguage }) {
 
   const [temp, setTemp] = useState(0);
+  const [humidity, setHumidity] = useState(0);
   const [loadingNpk, setLoadingNpk] = useState(false);
   const [loadingRain, setLoadingRain] = useState(false);
   const [phReadings, setPhReadings] = useState(["", "", ""]);
@@ -33,9 +34,21 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
     const interval = setInterval(async () => {
       try {
         const res = await axios.get(API);
-        setTemp(res.data.temperature);
+        const fetchedTemp = res.data.temperature || 0;
+        const fetchedHum = res.data.humidity;
+        
+        setTemp(fetchedTemp);
+        if(fetchedHum !== undefined) setHumidity(fetchedHum);
+
+        if (setHomeInputs) {
+          setHomeInputs(prev => ({
+            ...prev,
+            liveTemp: String(fetchedTemp),
+            liveHumidity: fetchedHum !== undefined ? String(fetchedHum) : prev.liveHumidity
+          }));
+        }
       } catch (err) {
-        console.log("Error fetching temp");
+        console.log("Error fetching temp or humidity");
       }
     }, 3000);
 
@@ -145,7 +158,12 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
       <Text style={styles.subHeader}>{t("Status: Connected to ESP", language)}</Text>
 
       {/* CARDS */}
-      <View style={styles.row}>
+      <View style={styles.rowWrap}>
+
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>{t("Temperature", language)}</Text>
+          <Text style={styles.cardValue}>{temp} °C</Text>
+        </View>
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>{t("Moisture", language)}</Text>
@@ -153,8 +171,8 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>{t("Temperature", language)}</Text>
-          <Text style={styles.cardValue}>{temp} °C</Text>
+          <Text style={styles.cardTitle}>{t("Humidity (%)", language).replace(" (%)", "")}</Text>
+          <Text style={styles.cardValue}>{humidity} %</Text>
         </View>
 
       </View>
@@ -320,21 +338,31 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
 
+  rowWrap: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+    marginBottom: 5
+  },
+
   card: {
     backgroundColor: '#E8F5E9',
     width: '48%',
-    padding: 10,
+    padding: 15,
     borderRadius: 10,
-    alignItems: 'left'
+    alignItems: 'flex-start',
+    marginBottom: 15
   },
 
   cardTitle: {
     fontSize: 14,
-    color: '#555'
+    color: '#555',
+    marginBottom: 4,
+    fontWeight: '600'
   },
 
   cardValue: {
-    fontSize: 29,
+    fontSize: 26,
     fontWeight: '700',
     color: '#1B5E20'
   },

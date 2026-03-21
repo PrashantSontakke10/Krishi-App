@@ -9,9 +9,11 @@ const CROP_TYPES = ["Barley", "Cotton", "Ground Nuts", "Maize", "Millets", "Oil 
 // Replace with your ESP IP
 const SENSOR_API = "http://10.157.70.174/temp";
 
-export default function FertilizerRecommendation({ openMenu, globalNpk, language }) {
+export default function FertilizerRecommendation({ openMenu, globalNpk, language, homeInputs }) {
   const [inputs, setInputs] = useState({
-    Temperature: '', Humidity: '', Moisture: '',
+    Temperature: homeInputs?.temperature || homeInputs?.liveTemp || '',
+    Humidity: homeInputs?.humidity || homeInputs?.liveHumidity || '',
+    Moisture: '100',
     Soil_Type: '', Crop_Type: '',
     Nitrogen: globalNpk ? String(Math.round(globalNpk.Nitrogen || globalNpk.N || 0)) : '',
     Potassium: globalNpk ? String(Math.round(globalNpk.Potassium || globalNpk.K || 0)) : '',

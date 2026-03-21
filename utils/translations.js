@@ -172,6 +172,7 @@ export const translations = {
   "Season": { hi: "मौसम", mr: "हंगाम" },
   "State": { hi: "राज्य", mr: "राज्य" },
   "Area (acres)": { hi: "क्षेत्र (एकड़)", mr: "क्षेत्र (एकर)" },
+  "Rainfall (Average of crop season in mm)": { hi: "वर्षा (फसल के मौसम का औसत मिमी में)", mr: "पाऊस (पीक हंगामाची सरासरी मिमीमध्ये)" },
   "Pesticide": { hi: "कीटनाशक", mr: "कीटकनाशक" },
   "Fertilizer": { hi: "उर्वरक", mr: "खत" },
   "Predict Yield": { hi: "उपज की भविष्यवाणी करें", mr: "उत्पन्नाचा अंदाज घ्या" },
