@@ -133,6 +133,14 @@ export default function WeatherScreen({ openMenu, language }) {
             {/* 7-Day Temperature Forecast List (Apple Style) */}
             <Text style={styles.sectionTitle}>{t("7-Day Forecast", language)}</Text>
             <View style={styles.listCard}>
+              <View style={[styles.forecastRow, { borderBottomWidth: 0, paddingVertical: 4, paddingBottom: 8 }]}>
+                <View style={styles.dateCol} />
+                <View style={styles.tempRangeCol}>
+                  <Text style={[styles.tempMinText, { fontSize: 12, color: '#888', fontWeight: '500' }]}>{t("Min", language)}</Text>
+                  <View style={{ flex: 1, marginHorizontal: 10 }} />
+                  <Text style={[styles.tempMaxText, { fontSize: 12, color: '#888', fontWeight: '500' }]}>{t("Max", language)}</Text>
+                </View>
+              </View>
               {forecast.time.map((date, index) => {
                 const dayMin = forecast.temperature_2m_min[index];
                 const dayMax = forecast.temperature_2m_max[index];

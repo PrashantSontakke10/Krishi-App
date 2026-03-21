@@ -42,6 +42,10 @@ export default function Sidebar({ onClose, navigate, language }) {
           <Text style={styles.item}>{t("⛅ Smart Weather", language)}</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity onPress={() => navigate("history")}>
+          <Text style={styles.item}>{t("📜 Field History", language)}</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity onPress={onClose}>
           <Text style={styles.close}>{t("Close", language)}</Text>
         </TouchableOpacity>
@@ -58,13 +62,17 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     backgroundColor: 'rgba(0,0,0,0.3)',
-    marginTop: 30
+    marginTop: 30,
+    zIndex: 100,
+    elevation: 100
   },
 
   menu: {
     width: 260,
     height: '100%',
     backgroundColor: '#fff',
+    elevation: 100,
+    zIndex: 100
   },
 
   menuContent: {

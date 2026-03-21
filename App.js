@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { BackHandler } from 'react-native';
+
 import HomeScreen from './screens/HomeScreen';
 import Sidebar from './components/Sidebar';
 import CropRecommendation from './screens/CropRecommendation';
@@ -9,6 +10,7 @@ import YieldPrediction from './screens/YieldPrediction';
 import MarketPrice from './screens/MarketPrice';
 import RcControl from './screens/RcControl';
 import WeatherScreen from './screens/WeatherScreen';
+import FieldHistoryScreen from './screens/FieldHistoryScreen';
 
 export default function App() {
 
@@ -22,6 +24,9 @@ export default function App() {
     rainfall: '200'
   });
   const [language, setLanguage] = useState("en");
+  const [fieldHistory, setFieldHistory] = useState([
+    { id: '1', date: '3/10/2026', location: 'North Plot', n: 35, p: 20, k: 30, ph: '6.2', temp: '25', rainfall: '10' }
+  ]);
 
   useEffect(() => {
     const backAction = () => {
@@ -53,6 +58,7 @@ export default function App() {
       case "market": return <MarketPrice openMenu={() => setMenuOpen(true)} homeInputs={homeInputs} language={language} />;
       case "rcControl": return <RcControl openMenu={() => setMenuOpen(true)} homeInputs={homeInputs} language={language} />;
       case "weather": return <WeatherScreen openMenu={() => setMenuOpen(true)} language={language} />;
+      case "history": return <FieldHistoryScreen openMenu={() => setMenuOpen(true)} language={language} homeInputs={homeInputs} globalNpk={globalNpk} fieldHistory={fieldHistory} setFieldHistory={setFieldHistory} />;
       default:
         return <HomeScreen openMenu={() => setMenuOpen(true)} globalNpk={globalNpk} setGlobalNpk={setGlobalNpk} homeInputs={homeInputs} setHomeInputs={setHomeInputs} language={language} setLanguage={setLanguage} />;
     }

@@ -351,7 +351,35 @@ export const translations = {
   "All Clear": { hi: "सब ठीक है", mr: "सर्व सुरक्षित" },
   "No severe weather warnings for the upcoming week.": { hi: "आगामी सप्ताह के लिए कोई गंभीर मौसम चेतावनी नहीं।", mr: "आगामी आठवड्यासाठी कोणतेही गंभीर हवामान इशारे नाहीत." },
   "7-Day Forecast": { hi: "7-दिन का पूर्वानुमान", mr: "7-दिवसांचा अंदाज" },
-  "Rainfall Trend": { hi: "वर्षा की प्रवृत्ति", mr: "पावसाचा कल" }
+  "Rainfall Trend": { hi: "वर्षा की प्रवृत्ति", mr: "पावसाचा कल" },
+
+  // New Market Price Additions
+  "Permission Denied": { hi: "अनुमति अस्वीकृत", mr: "परवानगी नाकारली" },
+  "Allow location access to find local crop prices.": { hi: "स्थानीय फसल की कीमतें खोजने के लिए स्थान तक पहुंच की अनुमति दें।", mr: "स्थानिक पिकांच्या किमती शोधण्यासाठी स्थान परवानगी द्या." },
+  "Error": { hi: "त्रुटि", mr: "त्रुटी" },
+  "Failed to fetch location data.": { hi: "स्थान डेटा प्राप्त करने में विफल।", mr: "स्थान डेटा मिळविण्यात अयशस्वी." },
+  "Live Market APMC": { hi: "लाइव मार्केट एपीएमसी", mr: "थेट बाजार एपीएमसी" },
+  "Offline / No Current Data": { hi: "ऑफ़लाइन / कोई वर्तमान डेटा नहीं", mr: "ऑफलाइन / कोणताही सध्याचा डेटा नाही" },
+  "per Quintal": { hi: "प्रति क्विंटल", mr: "प्रति क्विंटल" },
+  "Scanning local APMC mandis...": { hi: "स्थानीय एपीएमसी मंडियों को स्कैन कर रहा है...", mr: "स्थानिक एपीएमसी बाजार समित्या स्कॅन करत आहे..." },
+  "Local Market Pricing For:": { hi: "स्थानीय बाजार मूल्य किसके लिए:", mr: "स्थानिक बाजार भाव याच्यासाठी:" },
+  "Refresh": { hi: "ताज़ा करें", mr: "रिफ्रेश करा" },
+  "Search inside 55 Crops...": { hi: "55 फसलों के अंदर खोजें...", mr: "५५ पिकांमध्ये शोधा..." },
+  "Crops Displayed": { hi: "फसलें प्रदर्शित", mr: "प्रदर्शित पिके" },
+
+  // Field History Additions
+  "📜 Field History": { hi: "📜 खेत का इतिहास", mr: "📜 शेताचा इतिहास" },
+  "Save Current Soil Condition": { hi: "वर्तमान मिट्टी की स्थिति सहेजें", mr: "सध्याची मातीची स्थिती जतन करा" },
+  "Record your currently predicted NPK and pH readings against a specific field location.": { hi: "विशिष्ट खेत स्थान के विरुद्ध अपने वर्तमान अनुमानित NPK और pH को सहेजें।", mr: "विशिष्ट शेताच्या ठिकाणाविरुद्ध तुमचे सध्याचे अंदाजित NPK आणि pH जतन करा." },
+  "e.g., North Plot, Farm A": { hi: "उदा., उत्तरी प्लॉट, खेत ए", mr: "उदा., नॉर्थ प्लॉट, शेत ए" },
+  "Current vs Past": { hi: "वर्तमान बनाम अतीत", mr: "सध्याचे वि. मागील" },
+  "💾 Commit to History": { hi: "💾 इतिहास में सहेजें", mr: "💾 इतिहास जतन करा" },
+  "Stored Records map": { hi: "संग्रहीत रिकॉर्ड मैप", mr: "जतन केलेले रेकॉर्ड" },
+  "No records found. Start saving your soil conditions above!": { hi: "कोई रिकॉर्ड नहीं मिला। ऊपर अपनी मिट्टी की स्थिति सहेजना शुरू करें!", mr: "कोणतेही रेकॉर्ड सापडले नाही. वर तुमचे मातीचे रेकॉर्ड जतन करण्यास सुरुवात करा!" },
+  "Required": { hi: "आवश्यक", mr: "आवश्यक" },
+  "Please enter a Field or Location Name.": { hi: "कृपया खेत या स्थान का नाम दर्ज करें।", mr: "कृपया शेताचे किंवा ठिकाणाचे नाव टाका." },
+  "Success": { hi: "सफलता", mr: "यशस्वी" },
+  "Saved current reading to history!": { hi: "वर्तमान रीडिंग को इतिहास में सहेजा गया!", mr: "सध्याचे रीडिंग इतिहास जतन केले!" }
 };
 
 export const t = (text, lang) => {

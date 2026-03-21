@@ -7,7 +7,9 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
-  TextInput
+  TextInput,
+  Modal,
+  FlatList
 } from 'react-native';
 import axios from 'axios';
 import * as Location from 'expo-location';
@@ -24,6 +26,10 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
   const [loadingRain, setLoadingRain] = useState(false);
   const [phReadings, setPhReadings] = useState(["", "", ""]);
   const [avgPh, setAvgPh] = useState(null);
+
+  const [alerts, setAlerts] = useState([]);
+  const [showAlertsModal, setShowAlertsModal] = useState(false);
+  const notifiedAlertsRef = React.useRef(new Set());
 
   const handleNpkChange = (name, value) => {
     if (setHomeInputs) setHomeInputs(prev => ({ ...prev, [name]: value }));
@@ -54,6 +60,59 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
 
     return () => clearInterval(interval);
   }, []);
+
+  // Alert System
+  useEffect(() => {
+    const processAlert = async (id, title, message, icon) => {
+      if (!notifiedAlertsRef.current.has(id)) {
+        notifiedAlertsRef.current.add(id);
+        
+        // Add to local UI array
+        setAlerts(prev => {
+          // avoid duplicate pushing if it got re-rendered during same tick
+          if(prev.find(a => a.id === id)) return prev;
+          return [{ id, title, message, icon, time: new Date() }, ...prev];
+        });
+      }
+    };
+
+    // 1. Low Nitrogen (Soil)
+    if (globalNpk) {
+      const currentN = globalNpk.Nitrogen || globalNpk.N || 0;
+      if (currentN > 0 && currentN < 40) {
+        processAlert('low_nitrogen', t('Low Nitrogen Alert', language), t('Soil Nitrogen is below optimal levels. Consider adding nitrogen-rich fertilizers.', language), '🌱');
+      }
+    }
+
+    // 2. Heavy Rain (Weather) - Ignore the default '200' value from the form
+    if (homeInputs && homeInputs.rainfall && homeInputs.rainfall !== '200' && homeInputs.rainfall !== '') {
+      const rain = parseFloat(homeInputs.rainfall);
+      if (rain > 15) {
+        processAlert('heavy_rain', t('Heavy Rain Alert', language), t('Calculated rainfall is over 15mm. Take precautions for waterlogging.', language), '🌧️');
+      }
+    }
+
+    // 3. Bad pH (Soil)
+    if (avgPh && avgPh !== '') {
+      const ph = parseFloat(avgPh);
+      if (ph < 6) {
+        processAlert('bad_ph_acidic', t('Acidic pH Alert', language), t('Soil pH is dropping below 6.0 (Highly Acidic). Needs lime.', language), '🧪');
+      } else if (ph > 7.5) {
+        processAlert('bad_ph_alkaline', t('Alkaline pH Alert', language), t('Soil pH is above 7.5 (Highly Alkaline). Needs sulfur or peat.', language), '🧪');
+      }
+    }
+
+    // 4. Extreme Temperature (Live ESP Weather/Environment)
+    if (temp > 38) {
+      processAlert('high_temp', t('Heatwave Alert', language), t('Live temperature indicates extreme heat. Protect sensitive crops.', language), '🔥');
+    }
+
+    // 5. Low Moisture/Humidity (Live ESP Soil)
+    if (humidity > 0 && humidity < 20) {
+      processAlert('low_humidity', t('Drought Alert', language), t('Sensor indicates critically low humidity/moisture. Irrigation needed.', language), '🏜️');
+    }
+
+  }, [globalNpk, homeInputs?.rainfall, avgPh, temp, humidity, language]);
 
   const predictNpk = async () => {
     setLoadingNpk(true);
@@ -131,17 +190,33 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
     '#302E7A', '#2F2059'
   ];
 
+  const deleteAlert = (id) => {
+    setAlerts(prev => prev.filter(alert => alert.id !== id));
+  };
+
   return (
-    <ScrollView style={styles.container}>
+    <>
+      <ScrollView style={styles.container}>
 
-      {/* HEADER */}
-      <View style={styles.headerRow}>
-        <TouchableOpacity onPress={openMenu}>
-          <Text style={styles.menu}>☰</Text>
-        </TouchableOpacity>
+        {/* HEADER */}
+        <View style={[styles.headerRow, { justifyContent: 'space-between' }]}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <TouchableOpacity onPress={openMenu}>
+              <Text style={styles.menu}>☰</Text>
+            </TouchableOpacity>
 
-        <Text style={styles.header}>{t("🌱 KrishiSetu Dashboard", language)}</Text>
-      </View>
+            <Text style={styles.header}>{t("🌱 KrishiSetu Dashboard", language)}</Text>
+          </View>
+
+          <TouchableOpacity onPress={() => setShowAlertsModal(true)} style={{ position: 'relative', marginRight: 5 }}>
+            <Text style={{ fontSize: 24 }}>🔔</Text>
+            {alerts.length > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{alerts.length}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        </View>
 
       <View style={{flexDirection: 'row', justifyContent: 'center', marginBottom: 15, backgroundColor: '#E8F5E9', borderRadius: 8, padding: 4}}>
          <TouchableOpacity onPress={() => setLanguage && setLanguage('en')} style={[styles.langBtn, language === 'en' && styles.langBtnActive]}>
@@ -298,6 +373,46 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
       </View>
 
     </ScrollView>
+
+      {/* ALERTS MODAL */}
+      <Modal visible={showAlertsModal} animationType="slide" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>{t("Alerts", language)}</Text>
+              <TouchableOpacity onPress={() => setShowAlertsModal(false)}>
+                <Text style={{ fontSize: 20, color: '#666' }}>✕</Text>
+              </TouchableOpacity>
+            </View>
+            
+            {alerts.length === 0 ? (
+              <View style={styles.emptyAlertsBox}>
+                <Text style={{ fontSize: 16, color: '#666' }}>{t("No active alerts at the moment.", language)}</Text>
+              </View>
+            ) : (
+              <FlatList
+                data={alerts}
+                keyExtractor={(item, index) => item.id + index}
+                renderItem={({ item }) => (
+                  <View style={styles.alertItem}>
+                    <Text style={{ fontSize: 28, marginRight: 15 }}>{item.icon}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.alertItemTitle}>{item.title}</Text>
+                      <Text style={styles.alertItemMessage}>{item.message}</Text>
+                      <Text style={styles.alertItemTime}>{item.time.toLocaleTimeString()}</Text>
+                    </View>
+                    <TouchableOpacity onPress={() => deleteAlert(item.id)} style={{ padding: 8 }}>
+                      <Text style={{ fontSize: 20, color: '#FF5252' }}>×</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+                contentContainerStyle={{ paddingBottom: 20 }}
+              />
+            )}
+          </View>
+        </View>
+      </Modal>
+    </>
   );
 }
 
@@ -453,6 +568,83 @@ const styles = StyleSheet.create({
   langBtn: { flex: 1, paddingVertical: 8, alignItems: 'center', borderRadius: 6 },
   langBtnActive: { backgroundColor: '#2E7D32' },
   langText: { fontSize: 13, fontWeight: '700', color: '#666' },
-  langTextActive: { color: '#fff' }
+  langTextActive: { color: '#fff' },
+
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -6,
+    backgroundColor: '#E53935',
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#fff'
+  },
+  badgeText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold'
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end'
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    height: '60%'
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+    paddingBottom: 15,
+    marginBottom: 15
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#1B5E20'
+  },
+  emptyAlertsBox: {
+    alignItems: 'top',
+    justifyContent: 'top',
+    flex: 2
+  },
+  alertItem: {
+    flexDirection: 'row',
+    backgroundColor: '#F9FAFB',
+    padding: 15,
+    borderRadius: 12,
+    marginBottom: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#EAECF0'
+  },
+  alertItemTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#D32F2F',
+    marginBottom: 4
+  },
+  alertItemMessage: {
+    fontSize: 13,
+    color: '#555',
+    lineHeight: 18
+  },
+  alertItemTime: {
+    fontSize: 10,
+    color: '#999',
+    marginTop: 6,
+    textAlign: 'right'
+  }
 
 });
