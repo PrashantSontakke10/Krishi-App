@@ -13,6 +13,10 @@ export default function Sidebar({ onClose, navigate }) {
           <Text style={styles.item}>🏠 Dashboard</Text>
         </TouchableOpacity>
 
+        <TouchableOpacity onPress={() => navigate("rcControl")}>
+          <Text style={styles.item}>🏎️ RC Remote</Text>
+        </TouchableOpacity>
+
         <TouchableOpacity onPress={() => navigate("crop")}>
           <Text style={styles.item}>🌾 Crop Recommendation</Text>
         </TouchableOpacity>
@@ -33,9 +37,6 @@ export default function Sidebar({ onClose, navigate }) {
           <Text style={styles.item}>💰 Market Price</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigate("rcControl")}>
-          <Text style={styles.item}>🏎️ RC Remote</Text>
-        </TouchableOpacity>
 
         <TouchableOpacity onPress={onClose}>
           <Text style={styles.close}>Close</Text>
