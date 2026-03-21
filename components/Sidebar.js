@@ -42,10 +42,6 @@ export default function Sidebar({ onClose, navigate, language }) {
           <Text style={styles.item}>{t("⛅ Smart Weather", language)}</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => navigate("history")}>
-          <Text style={styles.item}>{t("📜 Field History", language)}</Text>
-        </TouchableOpacity>
-
         <TouchableOpacity onPress={onClose}>
           <Text style={styles.close}>{t("Close", language)}</Text>
         </TouchableOpacity>

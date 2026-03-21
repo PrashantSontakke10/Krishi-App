@@ -10,7 +10,7 @@ import YieldPrediction from './screens/YieldPrediction';
 import MarketPrice from './screens/MarketPrice';
 import RcControl from './screens/RcControl';
 import WeatherScreen from './screens/WeatherScreen';
-import FieldHistoryScreen from './screens/FieldHistoryScreen';
+
 
 export default function App() {
 
