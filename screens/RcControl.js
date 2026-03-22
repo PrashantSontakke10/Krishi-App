@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Image } from 'react-native';
 import axios from 'axios';
 import Paho from 'paho-mqtt';
 import { WebView } from 'react-native-webview';
 import { t } from '../utils/translations';
 
 const CONTROL_URL = 'http://10.13.19.84';
-const STREAM_URL = 'http://10.13.19.84:81/stream';
+const STREAM_URL = 'http://10.13.19.84/capture';
 
-const MQTT_BROKER = '10.13.19.102'; // Hive MQ IP
+const MQTT_BROKER = '10.157.70.102'; // Hive MQ IP
 const MQTT_PORT = 8000; // MUST BE WEBSOCKET PORT (For HiveMQ it usually defaults to 8000)
 
 export default function RcControl({ openMenu, language }) {
@@ -17,12 +17,26 @@ export default function RcControl({ openMenu, language }) {
     const [lastCmdText, setLastCmdText] = useState('None');
     const [replyText, setReplyText] = useState('Waiting');
     const [streamError, setStreamError] = useState(false);
-    const [streamKey, setStreamKey] = useState(0);
+    const [loadingCam, setLoadingCam] = useState(true);
+
+    // Double Buffer State to prevent screen tearing/blinking
+    const [buffers, setBuffers] = useState({
+        base: `${STREAM_URL}?t=0`,
+        next: `${STREAM_URL}?t=1`,
+        activeBuffer: 'base' // which one is currently visible to user
+    });
 
     // Custom states for actions
     const [relayState, setRelayState] = useState(false); // false = OFF, true = ON
+    const [turnState, setTurnState] = useState(false); // false = OFF, true = ON
+    const [picState, setPicState] = useState(false); // false = OFF, true = ON
 
     const mqttClientRef = useRef(null);
+    const turnStateRef = useRef(turnState);
+
+    useEffect(() => {
+        turnStateRef.current = turnState;
+    }, [turnState]);
 
     useEffect(() => {
         // Generate a random client ID
@@ -43,9 +57,21 @@ export default function RcControl({ openMenu, language }) {
         };
 
         const onConnect = () => {
-            console.log('Connected to MQTT');
             setConnected(true);
             mqttClient.subscribe('rc/car/status', { qos: 0 });
+
+            // Set initial hardware states to match app states (OFF)
+            try {
+                const relayMsg = new Paho.Message('RELAY_OFF');
+                relayMsg.destinationName = 'rc/car/control';
+                mqttClient.send(relayMsg);
+
+                const picMsg = new Paho.Message('PIC_OFF');
+                picMsg.destinationName = 'rc/car/control';
+                mqttClient.send(picMsg);
+            } catch (err) {
+                console.log('Failed to send initial states', err);
+            }
         };
 
         const onFailure = (err) => {
@@ -70,9 +96,8 @@ export default function RcControl({ openMenu, language }) {
         const wakeUpCamera = async () => {
             try {
                 // Optimizes camera for speed: CIF resolution (val=5) and good compression (quality=12)
-                await axios.get(`${CONTROL_URL}/control?var=framesize&val=5`); 
+                await axios.get(`${CONTROL_URL}/control?var=framesize&val=5`);
                 await axios.get(`${CONTROL_URL}/control?var=quality&val=12`);
-                console.log("Optimized camera for low-lag streaming.");
             } catch (e) {
                 console.log("Could not optimize camera:", e);
             }
@@ -80,8 +105,21 @@ export default function RcControl({ openMenu, language }) {
 
         wakeUpCamera();
 
+        // Slower 1-second update interval for maximum stability and no skipping
+        const intervalId = setInterval(() => {
+            if (!turnStateRef.current) return;
+            setBuffers(prev => {
+                const newlyFetchedUri = `${STREAM_URL}?t=${Date.now()}`;
+                return {
+                    ...prev,
+                    [prev.activeBuffer === 'base' ? 'next' : 'base']: newlyFetchedUri
+                };
+            });
+        }, 1000);
+
         // Cleanup on unmount
         return () => {
+            clearInterval(intervalId);
             if (mqttClientRef.current && mqttClientRef.current.isConnected()) {
                 mqttClientRef.current.disconnect();
             }
@@ -117,8 +155,31 @@ export default function RcControl({ openMenu, language }) {
         setLastCmdText(cmd.replace('_', ' '));
     };
 
+    const handleTurnToggle = () => {
+        const newState = !turnState;
+        setTurnState(newState);
+
+        const cmd = newState ? 'TURN_ON' : 'TURN_OFF';
+        sendMqttMessage('rc/car/control', cmd);
+        setLastCmdText(cmd.replace('_', ' '));
+    };
+
+    const handlePicToggle = () => {
+        const newState = !picState;
+        setPicState(newState);
+
+        const cmd = newState ? 'PIC_ON' : 'PIC_OFF';
+        sendMqttMessage('rc/car/control', cmd);
+        setLastCmdText(cmd.replace('_', ' '));
+    };
+
     const handleStopClick = () => {
         handleTouchUp();
+    };
+
+    const handleGetSensors = () => {
+        sendMqttMessage('rc/car/control', 'GET_SENSORS');
+        setLastCmdText('GET SENSORS');
     };
 
     return (
@@ -151,35 +212,66 @@ export default function RcControl({ openMenu, language }) {
                                 <Text style={styles.videoText}>{t('Camera Feed Unavailable', language)}</Text>
                                 <TouchableOpacity
                                     style={styles.retryBtn}
-                                    onPress={() => { setStreamError(false); setStreamKey(k => k + 1); }}
+                                    onPress={() => setStreamError(false)}
                                 >
                                     <Text style={styles.retryBtnText}>🔄 {t('Retry', language) || 'Retry'}</Text>
                                 </TouchableOpacity>
                             </View>
+                        ) : !turnState ? (
+                            <View style={styles.streamErrorBox}>
+                                <Text style={[styles.videoText, { marginBottom: 15 }]}>{t('Camera Feed OFF', language)}</Text>
+                                <TouchableOpacity
+                                    style={[styles.retryBtn, { backgroundColor: '#2E7D32' }]}
+                                    onPress={handleTurnToggle}
+                                >
+                                    <Text style={styles.retryBtnText}>▶ {t('TURN ON CAMERA', language)}</Text>
+                                </TouchableOpacity>
+                            </View>
                         ) : (
-                                <WebView
-                                    key={streamKey}
-                                    source={{ uri: STREAM_URL }}
-                                    style={styles.webview}
-                                    onError={() => setStreamError(true)}
-                                    onHttpError={() => setStreamError(true)}
-                                    startInLoadingState={true}
-                                    renderLoading={() => (
-                                        <View style={styles.streamLoadingBox}>
-                                            <ActivityIndicator size="large" color="#4CAF50" />
-                                            <Text style={{ color: '#fff', marginTop: 10, fontSize: 13 }}>Connecting to camera...</Text>
-                                        </View>
-                                    )}
-                                    scrollEnabled={false}
-                                    allowsInlineMediaPlayback={true}
-                                    mediaPlaybackRequiresUserAction={false}
-                                    originWhitelist={['*']}
-                                    javaScriptEnabled={true}
-                                    domStorageEnabled={true}
-                                    mixedContentMode="always"
-                                    userAgent="Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.0.0 Mobile Safari/537.36"
-                                    incognito={true}
+                            <View style={styles.webview}>
+                                <TouchableOpacity
+                                    style={{ position: 'absolute', top: 3, right: 3, zIndex: 100, backgroundColor: 'rgba(244,67,54,0.85)', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20 }}
+                                    onPress={handleTurnToggle}
+                                >
+                                    <Text style={{ color: '#fff', fontSize: 12, fontWeight: 'bold' }}>{t('✖ TURN OFF', language)}</Text>
+                                </TouchableOpacity>
+                                {loadingCam && (
+                                    <View style={[styles.streamLoadingBox, { zIndex: 10 }]}>
+                                        <ActivityIndicator size="large" color="#4CAF50" />
+                                        <Text style={{ color: '#fff', marginTop: 10, fontSize: 13 }}>Initializing Feed...</Text>
+                                    </View>
+                                )}
+
+                                {/* Buffer 1: Base */}
+                                <Image
+                                    source={{ uri: buffers.base }}
+                                    style={[
+                                        { width: '100%', height: '100%', position: 'absolute' },
+                                        buffers.activeBuffer === 'base' ? { opacity: 1, zIndex: 2 } : { opacity: 0, zIndex: 1 }
+                                    ]}
+                                    resizeMode="contain"
+                                    fadeDuration={0}
+                                    onLoad={() => {
+                                        setLoadingCam(false);
+                                        setBuffers(p => ({ ...p, activeBuffer: 'base' }));
+                                    }}
                                 />
+
+                                {/* Buffer 2: Next */}
+                                <Image
+                                    source={{ uri: buffers.next }}
+                                    style={[
+                                        { width: '100%', height: '100%', position: 'absolute' },
+                                        buffers.activeBuffer === 'next' ? { opacity: 1, zIndex: 2 } : { opacity: 0, zIndex: 1 }
+                                    ]}
+                                    resizeMode="contain"
+                                    fadeDuration={0}
+                                    onLoad={() => {
+                                        setLoadingCam(false);
+                                        setBuffers(p => ({ ...p, activeBuffer: 'next' }));
+                                    }}
+                                />
+                            </View>
                         )}
                     </View>
                 </View>
@@ -249,13 +341,19 @@ export default function RcControl({ openMenu, language }) {
                             onPress={handleRelayToggle}
                         >
                             <Text style={styles.actionButtonText}>
-                                {relayState ? t('RELAY ON', language) : t('RELAY OFF', language)}
+                                {relayState ? t('TURN OFF CUTTER', language) : t('TURN ON CUTTER', language)}
                             </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.actionButton}>
-                            <Text style={styles.actionButtonText}>{t("Camera", language)}</Text>
+
+                        <TouchableOpacity
+                            style={[styles.actionButton, picState ? { backgroundColor: '#f44336', shadowColor: '#f44336' } : {}]}
+                            onPress={handlePicToggle}
+                        >
+                            <Text style={styles.actionButtonText}>
+                                {picState ? t('TURN OFF PIC SENSOR', language) : t('TURN ON PIC SENSOR', language)}
+                            </Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.actionButton}>
+                        <TouchableOpacity style={styles.actionButton} onPress={handleGetSensors}>
                             <Text style={styles.actionButtonText}>{t("Get Sensor Values", language)}</Text>
                         </TouchableOpacity>
                     </View>
