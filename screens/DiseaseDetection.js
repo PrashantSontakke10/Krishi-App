@@ -11,7 +11,6 @@ export default function DiseaseDetection({ openMenu, language }) {
 
   const pickImage = async () => {
     try {
-      // Request gallery permissions if needed, Expo usually handles this automatically on launch
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
         allowsEditing: true,
@@ -23,7 +22,29 @@ export default function DiseaseDetection({ openMenu, language }) {
         setResult(null);
       }
     } catch (error) {
-      Alert.alert("Permission Required", "Please allow gallery access to pick an image.");
+      Alert.alert(t("Permission Required", language), t("Please allow gallery access to pick an image.", language));
+    }
+  };
+
+  const takePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert(t("Permission Denied", language), t("We need camera access to take a photo of the leaf.", language));
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (!result.canceled) {
+        setImage(result.assets[0].uri);
+        setResult(null);
+      }
+    } catch (error) {
+      Alert.alert(t("Error", language), t("Could not open camera.", language));
     }
   };
 
@@ -48,19 +69,37 @@ export default function DiseaseDetection({ openMenu, language }) {
     });
 
     try {
-      const response = await axios.post('https://plant-disease-prediction-2-rga3.onrender.com/predict', formData, {
+      const response = await fetch(process.env.EXPO_PUBLIC_DISEASE_API_URL || 'https://plant-disease-prediction-3-ks6n.onrender.com/predict', {
+        method: 'POST',
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Accept': 'application/json',
+          // NO Content-Type header here for fetch + FormData
         },
+        body: formData,
       });
 
-      // Handle typical JSON response extracting prediction
-      // It might be { "prediction": "Apple_scab" } or something similar
-      const predictedDisease = response.data.prediction || response.data.disease || response.data.class || response.data;
-      setResult(predictedDisease);
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Response Data:", data);
+
+      // Extract result more robustly
+      const predictedDisease = data.disease || data.prediction || data.class || (typeof data === 'string' ? data : null);
+      
+      // If we have confidence, maybe append it for better UX
+      if (predictedDisease && data.confidence) {
+        setResult({
+          disease: predictedDisease,
+          confidence: (data.confidence * 100).toFixed(2)
+        });
+      } else {
+        setResult(predictedDisease || JSON.stringify(data));
+      }
     } catch (error) {
       console.log("Upload Error: ", error);
-      Alert.alert("Upload Failed", "Could not analyze the image. Check your network or the API status.");
+      Alert.alert("Upload Failed", "Could not analyze the image. Check your network or the API status (Render apps can take 1 minute to boot).");
     } finally {
       setLoading(false);
     }
@@ -82,16 +121,27 @@ export default function DiseaseDetection({ openMenu, language }) {
         <View style={styles.formCard}>
           <Text style={styles.sectionTitle}>{t("Image Upload", language)}</Text>
 
-          <TouchableOpacity style={styles.imagePickerArea} onPress={pickImage}>
+          <View style={styles.imagePickerArea}>
             {image ? (
               <Image source={{ uri: image }} style={styles.previewImage} />
             ) : (
               <View style={styles.placeholderBox}>
-                <Text style={styles.placeholderIcon}>📸</Text>
-                <Text style={styles.placeholderText}>{t("Tap to choose from Gallery", language)}</Text>
+                <Text style={styles.placeholderIcon}>🌿</Text>
+                <Text style={styles.placeholderText}>{t("No Image Selected", language)}</Text>
               </View>
             )}
-          </TouchableOpacity>
+          </View>
+
+          <View style={styles.selectionRow}>
+            <TouchableOpacity style={styles.selectionBtn} onPress={pickImage}>
+              <Text style={styles.selectionBtnIcon}>🖼️</Text>
+              <Text style={styles.selectionBtnText}>{t("Gallery", language)}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.selectionBtn} onPress={takePhoto}>
+              <Text style={styles.selectionBtnIcon}>📸</Text>
+              <Text style={styles.selectionBtnText}>{t("Camera", language)}</Text>
+            </TouchableOpacity>
+          </View>
 
           <TouchableOpacity style={[styles.actionButton, !image && styles.actionButtonDisabled]} onPress={uploadAndPredict} disabled={loading || !image}>
             {loading ? <ActivityIndicator color="#fff" size="small" /> : <Text style={styles.actionButtonText}>{t("Scan Disease", language)}</Text>}
@@ -102,10 +152,17 @@ export default function DiseaseDetection({ openMenu, language }) {
           <View style={styles.resultCard}>
             <Text style={styles.resultBadge}>{t("DETECTION COMPLETE", language)}</Text>
             <Text style={styles.resultTitle}>{t("Diagnosis:", language)}</Text>
-            {typeof result === 'string' ? (
-              <Text style={styles.resultHighlight}>{result.replace(/_/g, ' ')}</Text>
+            {typeof result === 'object' ? (
+              <View>
+                <Text style={styles.resultHighlight}>{result.disease.replace(/_/g, ' ')}</Text>
+                {/* {result.confidence && (
+                  <Text style={{ color: '#A5D6A7', fontSize: 16, marginTop: -5, marginBottom: 10 }}>
+                    Confidence: {result.confidence}%
+                  </Text>
+                )} */}
+              </View>
             ) : (
-              <Text style={styles.resultText}>{JSON.stringify(result)}</Text>
+              <Text style={styles.resultHighlight}>{String(result).replace(/_/g, ' ')}</Text>
             )}
             <Text style={styles.resultSubtext}>{t("This result is predicted by our AI model. For advanced agricultural damage, consult a local botanist.", language)}</Text>
           </View>
@@ -131,6 +188,11 @@ const styles = StyleSheet.create({
   placeholderIcon: { fontSize: 40, marginBottom: 10 },
   placeholderText: { fontSize: 15, fontWeight: '600', color: '#888' },
   previewImage: { width: '100%', height: '100%', resizeMode: 'cover' },
+
+  selectionRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+  selectionBtn: { flex: 0.48, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F0F4F2', paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: '#EAECF0' },
+  selectionBtnIcon: { fontSize: 18, marginRight: 8 },
+  selectionBtnText: { fontSize: 14, fontWeight: '700', color: '#1B5E20' },
 
   actionButton: { backgroundColor: '#2E7D32', paddingVertical: 18, borderRadius: 16, alignItems: 'center', shadowColor: '#2E7D32', shadowOffset: { width: 0, height: 6 }, shadowOpacity: 0.3, shadowRadius: 10, elevation: 8, marginTop: 5 },
   actionButtonDisabled: { backgroundColor: '#A5D6A7', shadowOpacity: 0 },

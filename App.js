@@ -10,6 +10,8 @@ import YieldPrediction from './screens/YieldPrediction';
 import MarketPrice from './screens/MarketPrice';
 import RcControl from './screens/RcControl';
 import WeatherScreen from './screens/WeatherScreen';
+import FieldHistoryScreen from './screens/FieldHistoryScreen';
+import AnalyticsScreen from './screens/AnalyticsScreen';
 
 
 export default function App() {
@@ -59,8 +61,18 @@ export default function App() {
       case "rcControl": return <RcControl openMenu={() => setMenuOpen(true)} homeInputs={homeInputs} language={language} />;
       case "weather": return <WeatherScreen openMenu={() => setMenuOpen(true)} language={language} />;
       case "history": return <FieldHistoryScreen openMenu={() => setMenuOpen(true)} language={language} homeInputs={homeInputs} globalNpk={globalNpk} fieldHistory={fieldHistory} setFieldHistory={setFieldHistory} />;
+      case "analytics": return <AnalyticsScreen openMenu={() => setMenuOpen(true)} language={language} fieldHistory={fieldHistory} />;
       default:
-        return <HomeScreen openMenu={() => setMenuOpen(true)} globalNpk={globalNpk} setGlobalNpk={setGlobalNpk} homeInputs={homeInputs} setHomeInputs={setHomeInputs} language={language} setLanguage={setLanguage} />;
+        return <HomeScreen 
+          openMenu={() => setMenuOpen(true)} 
+          navigate={setScreen}
+          globalNpk={globalNpk} 
+          setGlobalNpk={setGlobalNpk} 
+          homeInputs={homeInputs} 
+          setHomeInputs={setHomeInputs} 
+          language={language} 
+          setLanguage={setLanguage} 
+        />;
     }
   };
 

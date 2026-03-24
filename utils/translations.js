@@ -165,6 +165,10 @@ export const translations = {
   "DETECTION COMPLETE": { hi: "पहचान पूरी हुई", mr: "ओळख पूर्ण झाली" },
   "Diagnosis:": { hi: "निदान:", mr: "निदान:" },
   "This result is predicted by our AI model. For advanced agricultural damage, consult a local botanist.": { hi: "यह एआई का अनुमान है। उन्नत क्षति के लिए स्थानीय वनस्पतिशास्त्री से सलाह लें।", mr: "हा एआयचा अंदाज आहे. प्रगत नुकसानीसाठी स्थानिक वनस्पतिशास्त्रज्ञांचा सल्ला घ्या." },
+  "Gallery": { hi: "गैलरी", mr: "गॅलरी" },
+  "Camera": { hi: "कैमरा", mr: "कॅमेरा" },
+  "We need camera access to take a photo of the leaf.": { hi: "पत्ती की तस्वीर लेने के लिए हमें कैमरा एक्सेस चाहिए।", mr: "पानाचे चित्र घेण्यासाठी आम्हाला कॅमेरा प्रवेश हवा आहे." },
+  "No Image Selected": { hi: "कोई चित्र नहीं चुना गया", mr: "कोणतीही प्रतिमा निवडली नाही" },
 
   // Yield Prediction
   "Enter crop details and environmental conditions to predict yield.": { hi: "उपज की भविष्यवाणी करने के लिए फसल और पर्यावरण विवरण दर्ज करें।", mr: "उत्पन्नाचा अंदाज लावण्यासाठी पीक आणि पर्यावरण तपशील प्रविष्ट करा." },
@@ -379,7 +383,49 @@ export const translations = {
   "Required": { hi: "आवश्यक", mr: "आवश्यक" },
   "Please enter a Field or Location Name.": { hi: "कृपया खेत या स्थान का नाम दर्ज करें।", mr: "कृपया शेताचे किंवा ठिकाणाचे नाव टाका." },
   "Success": { hi: "सफलता", mr: "यशस्वी" },
-  "Saved current reading to history!": { hi: "वर्तमान रीडिंग को इतिहास में सहेजा गया!", mr: "सध्याचे रीडिंग इतिहास जतन केले!" }
+  "Saved current reading to history!": { hi: "वर्तमान रीडिंग को इतिहास में सहेजा गया!", mr: "सध्याचे रीडिंग इतिहास जतन केले!" },
+
+  "Configure Boundary": {
+     hi: "जियोफेंस कॉन्फ़िगर करें",
+     mr: "जिओफेन्स कॉन्फिगर करा"
+  },
+  "Paste the longitude,latitude,altitude coordinates from Google Earth or your rover log.": {
+     hi: "गूगल अर्थ या अपने रोवर लॉग से देशांतर, अक्षांश और ऊँचाई के निर्देशांक पेस्ट करें।",
+     mr: "गुगल अर्थ किंवा तुमच्या रोव्हर लॉगवरून रेखांश, अक्षांश आणि उंचीचे को-ऑर्डिनेट पेस्ट करा."
+  },
+  "Cancel": { hi: "रद्द करें", mr: "रद्द करा" },
+  "Save Bound": { hi: "बाउंड्री सहेजें", mr: "बाउंड्री जतन करा" },
+  "Success": { hi: "सफलता", mr: "यशस्वी" },
+  "New boundary saved and applied to map.": { hi: "नई सीमा सहेजी गई और मानचित्र पर लागू की गई।", mr: "नवीन सीमा जतन केली आणि नकाशावर लागू केली." },
+  "Invalid coordinates format.": { hi: "निर्देशांक का प्रारूप अमान्य है।", mr: "को-ऑर्डिनेट फॉरमॅट अमान्य आहे." },
+
+  "Smart Geofence Visualization": {
+    hi: "स्मार्ट जियोफेंस विज़ुअलाइज़ेशन",
+    mr: "स्मार्ट जिओफेन्स व्हिज्युअलायझेशन"
+  },
+  "Farm Analytics": {
+    hi: "खेत विश्लेषण",
+    mr: "शेती विश्लेषण"
+  },
+  "View Detailed Farm Analytics": {
+    hi: "विस्तृत खेत विश्लेषण देखें",
+    mr: "तपशीलवार शेती विश्लेषण पहा"
+  },
+  "Health Index": { hi: "स्वास्थ्य सूचकांक", mr: "आरोग्य निर्देशांक" },
+  "Soil Wellness": { hi: "मिट्टी का स्वास्थ्य", mr: "मातीचे आरोग्य" },
+  "Your soil health is 12% better than last month. Keep it up!": { hi: "आपकी मिट्टी का स्वास्थ्य पिछले महीने की तुलना में 12% बेहतर है। इसे बनाए रखें!", mr: "तुमच्या मातीचे आरोग्य गेल्या महिन्यापेक्षा १२% चांगले आहे. असेच चालू ठेवा!" },
+  "OPTIMAL": { hi: "इष्टतम", mr: "इष्टतम" },
+  "Nutrient Analysis": { hi: "पोषक तत्व विश्लेषण", mr: "पोषक तत्व विश्लेषण" },
+  "Average levels across all plots": { hi: "सभी भूखंडों में औसत स्तर", mr: "सर्व भूखंडांमधील सरासरी पातळी" },
+  "Insight: Nitrogen levels are slightly low for the current season.": { hi: "परामर्श: इस मौसम के लिए नाइट्रोजन का स्तर थोड़ा कम है।", mr: "सल्ला: सध्याच्या हंगामासाठी नायट्रोजनची पातळी थोडी कमी आहे." },
+  "Weather & Yield Correlation": { hi: "मौसम और उपज सहसंबंध", mr: "हवामान आणि उत्पन्न सहसंबंध" },
+  "Total Rainfall": { hi: "कुल वर्षा", mr: "एकूण पाऊस" },
+  "Avg. Temp": { hi: "औसत तापमान", mr: "सरासरी तापमान" },
+  "AI Recommendations": { hi: "एआई सिफारिशें", mr: "एआय शिफारसी" },
+  "Optimize Irrigation": { hi: "सिंचाई का अनुकूलन करें", mr: "सिंचन सुधारा" },
+  "Reduce watering in North Plot based on recent moisture readings.": { hi: "हाल के नमी रीडिंग के आधार पर उत्तरी प्लॉट में पानी कम करें।", mr: "अलीकडील ओलावा रीडिंगच्या आधारावर नॉर्थ प्लॉटमध्ये पाणी कमी करा." },
+  "Crop Rotation Suggestion": { hi: "फसल चक्र सुझाव", mr: "पीक फेरपालट सूचना" },
+  "Consider planting legumes in Plot B to naturally fix nitrogen levels.": { hi: "नाइट्रोजन स्तर को प्राकृतिक रूप से ठीक करने के लिए प्लॉट बी में फलियां लगाने पर विचार करें।", mr: "नायट्रोजनची पातळी नैसर्गिकरित्या सुधारण्यासाठी प्लॉट बी मध्ये कडधान्ये लावण्याचा विचार करा." }
 };
 
 export const t = (text, lang) => {

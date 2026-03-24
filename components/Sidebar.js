@@ -13,6 +13,7 @@ export default function Sidebar({ onClose, navigate, language }) {
     { id: 'yield', icon: '📊', label: "Yield Prediction" },
     { id: 'market', icon: '💰', label: "Market Price" },
     { id: 'weather', icon: '⛅', label: "Smart Weather" },
+    { id: 'analytics', icon: '📈', label: "Farm Analytics" },
   ];
 
   const handleNav = (id) => {

@@ -6,8 +6,8 @@ import { t } from '../utils/translations';
 const SOIL_TYPES = ["Black", "Clayey", "Loamy", "Red", "Sandy"];
 const CROP_TYPES = ["Barley", "Cotton", "Ground Nuts", "Maize", "Millets", "Oil seeds", "Paddy", "Pulses", "Sugarcane", "Tobacco", "Wheat"];
 
-// Replace with your ESP IP
-const SENSOR_API = "http://10.157.70.174/temp";
+// Get ESP IP from environment or use fallback
+const SENSOR_API = process.env.EXPO_PUBLIC_SENSOR_API_URL || "http://10.157.70.174/temp";
 
 export default function FertilizerRecommendation({ openMenu, globalNpk, language, homeInputs }) {
   const [inputs, setInputs] = useState({
@@ -74,22 +74,33 @@ export default function FertilizerRecommendation({ openMenu, globalNpk, language
     setResult(null);
 
     try {
-      const response = await axios.post('https://fertilizer-recommendation-wzmd.onrender.com/predict', {
-        Temperature: parseFloat(inputs.Temperature),
-        Humidity: parseFloat(inputs.Humidity),
-        Moisture: parseFloat(inputs.Moisture),
-        Soil_Type: inputs.Soil_Type.toLowerCase(),
-        Crop_Type: inputs.Crop_Type.toLowerCase(),
-        Nitrogen: parseFloat(inputs.Nitrogen),
-        Potassium: parseFloat(inputs.Potassium),
-        Phosphorous: parseFloat(inputs.Phosphorous)
-      }, { headers: { 'Content-Type': 'application/json' } });
+      const response = await fetch(process.env.EXPO_PUBLIC_FERTILIZER_API_URL || 'https://fertilizer-recommendation-wzmd.onrender.com/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          Temperature: parseFloat(inputs.Temperature),
+          Humidity: parseFloat(inputs.Humidity),
+          Moisture: parseFloat(inputs.Moisture),
+          Soil_Type: inputs.Soil_Type.toLowerCase(),
+          Crop_Type: inputs.Crop_Type.toLowerCase(),
+          Nitrogen: parseFloat(inputs.Nitrogen),
+          Potassium: parseFloat(inputs.Potassium),
+          Phosphorous: parseFloat(inputs.Phosphorous)
+        }),
+      });
 
-      // Handle actual specific response format
-      const recommendedFertilizer = response.data.prediction || response.data.fertilizer || response.data.recommended_fertilizer || response.data.Fertilizer || response.data;
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const recommendedFertilizer = data.prediction || data.fertilizer || data.recommended_fertilizer || data.Fertilizer || data;
       setResult(recommendedFertilizer);
     } catch (error) {
-      Alert.alert("Error", "Could not fetch recommendation. Please try again.");
+      Alert.alert("Error", "Could not fetch recommendation. Check your connection or API status (Render apps wake up in 1min).");
     } finally {
       setLoading(false);
     }

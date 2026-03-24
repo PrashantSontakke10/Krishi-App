@@ -46,20 +46,32 @@ export default function YieldPrediction({ openMenu, language, homeInputs }) {
     setResult(null);
 
     try {
-      const response = await axios.post('https://crop-yield-prediction-p3b5.onrender.com/predict', {
-        crop: inputs.crop,
-        season: inputs.season,
-        state: inputs.state,
-        area: parseFloat(inputs.area),
-        rainfall: parseFloat(inputs.rainfall),
-        fertilizer: parseFloat(inputs.fertilizer),
-        pesticide: parseFloat(inputs.pesticide)
-      }, { headers: { 'Content-Type': 'application/json' } });
+      const response = await fetch(process.env.EXPO_PUBLIC_YIELD_API_URL || 'https://crop-yield-prediction-p3b5.onrender.com/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          crop: inputs.crop,
+          season: inputs.season,
+          state: inputs.state,
+          area: parseFloat(inputs.area),
+          rainfall: parseFloat(inputs.rainfall),
+          fertilizer: parseFloat(inputs.fertilizer),
+          pesticide: parseFloat(inputs.pesticide)
+        }),
+      });
 
-      const predictedYield = response.data.prediction || response.data.yield || response.data;
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const predictedYield = data.prediction || data.yield || data;
       setResult(predictedYield);
     } catch (error) {
-      Alert.alert("Error", "Could not fetch prediction. Please try again.");
+      Alert.alert("Error", "Could not fetch prediction. Check your connection or API status (Render apps wake up in 1min).");
     } finally {
       setLoading(false);
     }

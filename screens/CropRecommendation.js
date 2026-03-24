@@ -33,7 +33,7 @@ export default function CropRecommendation({ openMenu, globalNpk, language, home
     setResult(null);
 
     try {
-      const response = await axios.post('https://crop-recommendation-1-dkak.onrender.com/predict', {
+      const response = await axios.post(process.env.EXPO_PUBLIC_CROP_API_URL || 'https://crop-recommendation-1-dkak.onrender.com/predict', {
         N: parseFloat(inputs.N),
         P: parseFloat(inputs.P),
         K: parseFloat(inputs.K),

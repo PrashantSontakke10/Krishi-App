@@ -66,8 +66,8 @@ export default function MarketPrice({ openMenu, language }) {
       setLocationName(displayLoc);
       
       // LIVE DATA.GOV.IN API Integration
-      const API_KEY = '579b464db66ec23bdd0000016048574c5b43497f55429d6e98e24230';
-      const RESOURCE_ID = '35985678-0d79-46b4-9ed6-6f13308a1d24';
+      const API_KEY = process.env.EXPO_PUBLIC_MARKET_API_KEY || '579b464db66ec23bdd0000016048574c5b43497f55429d6e98e24230';
+      const RESOURCE_ID = process.env.EXPO_PUBLIC_MARKET_RESOURCE_ID || '35985678-0d79-46b4-9ed6-6f13308a1d24';
       
       let apiUrl = `https://api.data.gov.in/resource/${RESOURCE_ID}?api-key=${API_KEY}&format=json&filters[state]=${encodeURIComponent(regionStr)}`;
       if (districtStr) {

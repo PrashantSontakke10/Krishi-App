@@ -15,10 +15,10 @@ import axios from 'axios';
 import * as Location from 'expo-location';
 import { t } from '../utils/translations';
 
-// 👉 Replace with your ESP IP
-const API = "http://10.157.70.125/temp";
+// 👉 Get ESP IP from environment or use fallback
+const API = process.env.EXPO_PUBLIC_ESP_API_URL || "http://10.157.70.125/temp";
 
-export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInputs, setHomeInputs, language, setLanguage }) {
+export default function HomeScreen({ openMenu, navigate, globalNpk, setGlobalNpk, homeInputs, setHomeInputs, language, setLanguage }) {
 
   const [temp, setTemp] = useState(0);
   const [humidity, setHumidity] = useState(0);
@@ -119,20 +119,32 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
     if (setGlobalNpk) setGlobalNpk(null);
     try {
       const inputs = homeInputs || {};
-      const response = await axios.post('https://npk-prediction-yrlu.onrender.com/predict', {
-        temperature: parseFloat(inputs.temperature) || parseFloat(temp) || 25,
-        humidity: parseFloat(inputs.humidity) || 100,
-        ph: parseFloat(inputs.ph) || 6.5,
-        rainfall: parseFloat(inputs.rainfall) || 200
-      }, { headers: { 'Content-Type': 'application/json' } });
-      
-      const resData = response.data.prediction || response.data.npk || response.data;
+      const response = await fetch(process.env.EXPO_PUBLIC_NPK_API_URL || 'https://npk-prediction-yrlu.onrender.com/predict', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+          temperature: parseFloat(inputs.temperature) || parseFloat(temp) || 25,
+          humidity: parseFloat(inputs.humidity) || 100,
+          ph: parseFloat(inputs.ph) || 6.5,
+          rainfall: parseFloat(inputs.rainfall) || 200
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const resData = data.prediction || data.npk || data;
       if (typeof resData === 'object' && setGlobalNpk) {
         setGlobalNpk(resData);
       }
     } catch (err) {
       console.log(err);
-      Alert.alert("Error", "Could not fetch NPK prediction. Please try again or check parameters.");
+      Alert.alert("Error", "Could not fetch NPK prediction. Check your connection or API status (Render apps can take 1min to boot).");
     } finally {
       setLoadingNpk(false);
     }
@@ -151,7 +163,7 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
       let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       const { latitude, longitude } = location.coords;
       
-      const response = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&daily=precipitation_sum&timezone=auto&forecast_days=1`);
+      const response = await axios.get(`${process.env.EXPO_PUBLIC_WEATHER_API_URL || 'https://api.open-meteo.com/v1/forecast'}?latitude=${latitude}&longitude=${longitude}&daily=precipitation_sum&timezone=auto&forecast_days=1`);
       
       if (response.data && response.data.daily && response.data.daily.precipitation_sum) {
         const rain = response.data.daily.precipitation_sum[0] || 0;
@@ -249,11 +261,16 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
           <Text style={[styles.cardTitle, { fontSize: 12, textAlign: 'center' }]} numberOfLines={1} adjustsFontSizeToFit>{t("Humidity (%)", language).replace(" (%)", "")}</Text>
           <Text style={[styles.cardValue, { fontSize: 22 }]} numberOfLines={1} adjustsFontSizeToFit>{humidity}%</Text>
         </View>
-
       </View>
 
+      <TouchableOpacity 
+        style={[styles.darkButton, { backgroundColor: '#1B5E20', marginBottom: 20, flexDirection: 'row', justifyContent: 'center' }]} 
+        onPress={() => navigate('analytics')}
+      >
+        <Text style={{ fontSize: 18, marginRight: 8 }}>🗺️</Text>
+        <Text style={styles.buttonText}>{t("View Farm Analytics Map", language)}</Text>
+      </TouchableOpacity>
 
-      {/* PH CALCULATOR */}
       <Text style={styles.section}>{t("pH Level Analyzer", language)}</Text>
 
       <View style={styles.box}>
@@ -299,7 +316,7 @@ export default function HomeScreen({ openMenu, globalNpk, setGlobalNpk, homeInpu
         </View>
 
         <TouchableOpacity style={styles.darkButton} onPress={calculateAveragePh}>
-          <Text style={styles.buttonText}>{t("Calculate Average", language)}</Text>
+          <Text style={styles.buttonText}>{t("Calculate pH", language)}</Text>
         </TouchableOpacity>
 
         {avgPh && (
