@@ -232,16 +232,16 @@ export default function RcControl({ openMenu, language }) {
             Alert.alert("Incomplete", "Please select at least 3 points to form a shape.");
             return;
         }
-        
+
         // We get the points from state as they were synced via bridge
         const newStr = editPoints.map(p => `${p[1]},${p[0]},0`).join(' ');
         const closedStr = newStr + ` ${editPoints[0][1]},${editPoints[0][0]},0`;
-        
+
         // Update main state - this will force a WebView reload with the NEW boundary
         setFarmBoundaryStr(closedStr);
         setEditPoints([]);
         setIsEditingBoundary(false);
-        
+
         Alert.alert("Success", "LATEST farm boundary saved successfully!");
     };
 
@@ -293,31 +293,32 @@ export default function RcControl({ openMenu, language }) {
                 <View style={[styles.formCard, { marginTop: 12, padding: 12 }]}>
                     <View style={styles.cardHeaderSmall}>
                         <Text style={styles.sectionTitleSmall}>{t('Smart Geofence', language)}</Text>
-                        <View style={{flexDirection: 'row', gap: 6, alignItems: 'center'}}>
-                           {isEditingBoundary && (
-                               <>
-                                   <TouchableOpacity onPress={handleUndo} style={styles.editBtnSmall}><Text style={styles.editBtnTextSmall}>Undo</Text></TouchableOpacity>
-                                   <TouchableOpacity onPress={() => { setEditPoints([]); }} style={[styles.editBtnSmall, {backgroundColor: '#d32f2f'}]}><Text style={styles.editBtnTextSmall}>Clear</Text></TouchableOpacity>
-                                   <TouchableOpacity onPress={saveEditBoundary} style={styles.saveBtnSmall}><Text style={styles.editBtnTextSmall}>Save</Text></TouchableOpacity>
-                               </>
-                           )}
-                           <TouchableOpacity onPress={() => setIsEditingBoundary(!isEditingBoundary)} style={[styles.drawBtn, isEditingBoundary && styles.drawBtnActive]}>
-                               <Text style={styles.drawBtnText}>{isEditingBoundary ? "DONE" : "🖊️ DRAW"}</Text>
-                           </TouchableOpacity>
-                           <TouchableOpacity onPress={() => { setTempBoundaryStr(farmBoundaryStr); setBoundaryModalVisible(true); }}><Text style={styles.statusBadgeTextSmall}>⚙️</Text></TouchableOpacity>
+                        <View style={{ flexDirection: 'row', gap: 6, alignItems: 'center' }}>
+                            {isEditingBoundary && (
+                                <>
+                                    <TouchableOpacity onPress={handleUndo} style={styles.editBtnSmall}><Text style={styles.editBtnTextSmall}>Undo</Text></TouchableOpacity>
+                                    <TouchableOpacity onPress={() => { setEditPoints([]); }} style={[styles.editBtnSmall, { backgroundColor: '#d32f2f' }]}><Text style={styles.editBtnTextSmall}>Clear</Text></TouchableOpacity>
+                                    <TouchableOpacity onPress={saveEditBoundary} style={styles.saveBtnSmall}><Text style={styles.editBtnTextSmall}>Save</Text></TouchableOpacity>
+                                </>
+                            )}
+                            <TouchableOpacity onPress={() => setIsEditingBoundary(!isEditingBoundary)} style={[styles.drawBtn, isEditingBoundary && styles.drawBtnActive]}>
+                                <Text style={styles.drawBtnText}>{isEditingBoundary ? "DONE" : "🖊️ DRAW"}</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity onPress={() => { setTempBoundaryStr(farmBoundaryStr); setBoundaryModalVisible(true); }}><Text style={styles.statusBadgeTextSmall}>⚙️</Text></TouchableOpacity>
                         </View>
                     </View>
                     <View style={styles.mapSectionCompact}>
-                        <WebView 
+                        <WebView
                             key={farmBoundaryStr} // FORCE FULL RE-RENDER WHEN BOUNDARY SAVED
-                            ref={webviewRef} 
-                            style={{ flex: 1 }} 
-                            originWhitelist={['*']} 
+                            ref={webviewRef}
+                            style={{ flex: 1 }}
+                            originWhitelist={['*']}
                             onMessage={handleMapMessage}
                             onLoad={() => {
                                 // Once loaded, if editing, we might need to restore state (but here we just prevent reloads)
                             }}
-                            source={{ html: `
+                            source={{
+                                html: `
               <!DOCTYPE html><html><head><meta name="viewport" content="initial-scale=1, maximum-scale=1"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><style>
                   body { margin: 0; padding: 0; background: #eee; }
                   #map { height: 100vh; width: 100%; border-radius: 8px; }
@@ -399,13 +400,13 @@ export default function RcControl({ openMenu, language }) {
                 {/* STEERING SECTION: (Fits on same initial page) */}
                 <View style={[styles.formCard, { marginTop: 12, padding: 12 }]}>
                     <View style={styles.navPadMedium}>
-                        <TouchableOpacity style={styles.mediumNavBtn} onPressIn={() => handleTouchDown('FORWARD')} onPressOut={handleTouchUp} delayPressIn={0}><Text style={styles.mediumNavBtnText}>▲</Text></TouchableOpacity>
+                        <TouchableOpacity style={styles.mediumNavBtn} onPressIn={() => handleTouchDown('BACKWARD')} onPressOut={handleTouchUp} delayPressIn={0}><Text style={styles.mediumNavBtnText}>▲</Text></TouchableOpacity>
                         <View style={{ flexDirection: 'row', gap: 15 }}>
-                            <TouchableOpacity style={styles.mediumNavBtn} onPressIn={() => handleTouchDown('LEFT')} onPressOut={handleTouchUp} delayPressIn={0}><Text style={styles.mediumNavBtnText}>◀</Text></TouchableOpacity>
+                            <TouchableOpacity style={styles.mediumNavBtn} onPressIn={() => handleTouchDown('RIGHT')} onPressOut={handleTouchUp} delayPressIn={0}><Text style={styles.mediumNavBtnText}>◀</Text></TouchableOpacity>
                             <TouchableOpacity style={[styles.mediumNavBtn, { backgroundColor: '#d32f2f', borderColor: '#d32f2f' }]} onPress={handleStopClick}><Text style={[styles.mediumNavBtnText, { color: '#fff' }]}>■</Text></TouchableOpacity>
-                            <TouchableOpacity style={styles.mediumNavBtn} onPressIn={() => handleTouchDown('RIGHT')} onPressOut={handleTouchUp} delayPressIn={0}><Text style={styles.mediumNavBtnText}>▶</Text></TouchableOpacity>
+                            <TouchableOpacity style={styles.mediumNavBtn} onPressIn={() => handleTouchDown('LEFT')} onPressOut={handleTouchUp} delayPressIn={0}><Text style={styles.mediumNavBtnText}>▶</Text></TouchableOpacity>
                         </View>
-                        <TouchableOpacity style={styles.mediumNavBtn} onPressIn={() => handleTouchDown('BACKWARD')} onPressOut={handleTouchUp} delayPressIn={0}><Text style={styles.mediumNavBtnText}>▼</Text></TouchableOpacity>
+                        <TouchableOpacity style={styles.mediumNavBtn} onPressIn={() => handleTouchDown('FORWARD')} onPressOut={handleTouchUp} delayPressIn={0}><Text style={styles.mediumNavBtnText}>▼</Text></TouchableOpacity>
                     </View>
                 </View>
 
@@ -437,8 +438,8 @@ export default function RcControl({ openMenu, language }) {
                     <View style={styles.modalContent}>
                         <Text style={styles.modalTitle}>{t('Configure Boundary', language)}</Text>
                         <Text style={styles.modalDesc}>{t('Paste the longitude,latitude,altitude coordinates from Google Earth or your rover log.', language)}</Text>
-                        
-                        <TextInput 
+
+                        <TextInput
                             style={styles.textArea}
                             multiline
                             placeholder="76.678...,20.782...,0 ..."
@@ -447,16 +448,16 @@ export default function RcControl({ openMenu, language }) {
                         />
 
                         <View style={styles.modalActions}>
-                            <TouchableOpacity 
-                                style={[styles.modalBtn, styles.cancelBtn]} 
+                            <TouchableOpacity
+                                style={[styles.modalBtn, styles.cancelBtn]}
                                 onPress={() => setBoundaryModalVisible(false)}
                             >
-                                <Text style={[styles.modalBtnText, {color: '#666'}]}>{t('Cancel', language)}</Text>
+                                <Text style={[styles.modalBtnText, { color: '#666' }]}>{t('Cancel', language)}</Text>
                             </TouchableOpacity>
-                            <TouchableOpacity 
-                                style={[styles.modalBtn, styles.saveBtn]} 
+                            <TouchableOpacity
+                                style={[styles.modalBtn, styles.saveBtn]}
                                 onPress={() => {
-                                    if(tempBoundaryStr.trim().length < 20) {
+                                    if (tempBoundaryStr.trim().length < 20) {
                                         Alert.alert("Error", "Invalid coordinates format.");
                                         return;
                                     }
@@ -465,7 +466,7 @@ export default function RcControl({ openMenu, language }) {
                                     Alert.alert("Success", "New boundary saved and applied to map.");
                                 }}
                             >
-                                <Text style={[styles.modalBtnText, {color: '#fff'}]}>{t('Save Bound', language)}</Text>
+                                <Text style={[styles.modalBtnText, { color: '#fff' }]}>{t('Save Bound', language)}</Text>
                             </TouchableOpacity>
                         </View>
                     </View>
